@@ -8,14 +8,19 @@ if (!auth.isAuthenticated) {
   await navigateTo('/login')
 }
 
+
+definePageMeta({
+  layout:false,  
+})
+
 const isFilterModalOpen = ref(false)
 const isLoading = ref(true)
 const error = ref(null)
 
 // Pagination
 const currentPage = ref(1)
-const itemsPerPage = ref(10)
-const itemsPerPageOptions = [10, 25, 50, 100, 250]
+const itemsPerPage = ref(20)
+const itemsPerPageOptions = [20, 25, 50, 100, 250]
 
 // Pagination computed properties
 const totalPages = computed(() => {
@@ -285,7 +290,7 @@ onMounted(() => {
 <template>
   <div class="space-y-6">
     <!-- Header -->
-    <div class="bg-white bg-opacity-90 backdrop-blur-md rounded-2xl p-6 shadow-2xl">
+    <div class="bg-white bg-opacity-90 backdrop-blur-md rounded-2xl p-6 ">
       <div class="flex justify-between items-center mb-4">
         <div>
           <h1 class="text-3xl font-bold bg-gradient-to-r from-green-600 to-teal-600 bg-clip-text text-transparent">
@@ -310,7 +315,7 @@ onMounted(() => {
       </div>
       
       <!-- Filter Bar -->
-      <div class="flex flex-wrap items-center justify-between gap-3 pt-4 border-t border-gray-200">
+      <div class="md:hidden flex flex-wrap items-center justify-between gap-3 pt-4 border-t border-gray-200">
         <div class="flex items-center gap-3">
           <button 
             @click="isFilterModalOpen = true" 
@@ -347,69 +352,157 @@ onMounted(() => {
     </div>
 
     <!-- Loading State -->
-    <div v-if="isLoading" class="bg-white bg-opacity-90 backdrop-blur-md rounded-2xl p-12 shadow-2xl text-center">
+    <div v-if="isLoading" class="bg-white bg-opacity-90 backdrop-blur-md rounded-2xl p-12 text-center">
       <div class="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-green-500 mx-auto"></div>
       <p class="mt-4 text-gray-500">Loading data from Google Sheets...</p>
     </div>
 
     <!-- Data Table -->
-    <div v-else-if="deposits.length > 0" class="bg-white bg-opacity-90 backdrop-blur-md rounded-2xl p-6 shadow-2xl">
-      <div class="overflow-x-auto">
-        <table class="min-w-full table-auto bordered">
-          <thead>
-            <tr class="bg-gray-50">
-              <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">#</th>
-              <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User ID</th>
-              <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
-              <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
-              <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Session</th>
-              <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Month</th>
-              <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Method</th>
-              <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Pay To</th>
-              <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Send From</th>
-              <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
-              <th v-if="auth.isAdmin" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-            </tr>
-          </thead>
-          <tbody class="divide-y divide-gray-200">
-            <tr v-for="(deposit, index) in paginatedDeposits" :key="deposit.user_id + index" class="hover:bg-gray-50">
-              <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">{{ (currentPage - 1) * itemsPerPage + index + 1 }}</td>
-              <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">{{ deposit.user_id }}</td>
-              <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">
-                <span class="px-2 py-1 rounded-full text-xs font-medium"
-                  :class="{
-                    'bg-green-100 text-green-800': deposit.type === 'Monthly',
-                    'bg-blue-100 text-blue-800': deposit.type === 'Yearly',
-                    'bg-purple-100 text-purple-800': deposit.type === 'Maintainanc'
-                  }"
+    <div v-else-if="deposits.length > 0" class="bg-white bg-opacity-90 backdrop-blur-md p-6">
+
+      <div class="flex ">
+
+        <!-- left filter asside  -->
+        <div class="min-w-\[250px\] mr-4 hidden md:block">
+          <div class="flex justify-between items-center mb-6">
+            <h3 class="text-2xl font-bold text-gray-900">Filter Deposits</h3>
+            <button 
+              @click="clearAllFilters" 
+              class="text-red-600 hover:text-red-800 text-sm font-medium"
+            >
+              Clear
+            </button>
+          </div>
+          
+          <div class="overflow-y-auto" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 10px;">
+            <div v-for="(filterConfig, filterKey) in filters" :key="filterKey" class="border rounded-lg p-4">
+              <div class=" mb-3">
+                <label class="text-lg font-semibold capitalize text-gray-800">{{ filterKey.replace('_', ' ') }}</label>
+                <div class="flex justify-between items-center gap-2">
+                  <button @click="selectAll(filterKey)" class="text-blue-600 hover:text-blue-800 text-sm">Select All</button>
+                  <button @click="clearAll(filterKey)" class="text-red-600 hover:text-red-800 text-sm">Clear</button>
+                </div>
+              </div>
+              
+              <input 
+                v-model="filterConfig.search" 
+                type="text" 
+                placeholder="Search..."
+                class="w-full p-2 mb-3 border rounded-lg text-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+              />
+              
+              <div class="flex items-center justify-between mb-2 text-sm text-gray-600">
+                <span>{{ filterConfig.selected.length }} selected</span>
+                <span>{{ filterConfig.options.length }} total</span>
+              </div>
+              
+              <div class="space-y-2 max-h-48 overflow-y-auto">
+                <div 
+                  v-for="option in filterConfig.options.filter(opt => 
+                    !filterConfig.search || 
+                    String(opt).toLowerCase().includes(filterConfig.search.toLowerCase())
+                  )" 
+                  :key="option" 
+                  class="flex items-center p-2 hover:bg-gray-50 rounded"
                 >
-                  {{ deposit.type }}
-                </span>
-              </td>
-              <td class="px-4 py-3 whitespace-nowrap text-sm font-semibold text-green-600">৳{{ parseFloat(deposit.amount).toLocaleString() }}</td>
-              <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">{{ deposit.session }}</td>
-              <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">{{ deposit.month }}</td>
-              <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">{{ deposit.method }}</td>
-              <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">{{ deposit.pay_to || '-' }}</td>
-              <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">{{ deposit.send_from || '-' }}</td>
-              <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">{{ deposit.date || '-' }}</td>
-              <td v-if="auth.isAdmin" class="px-4 py-3 whitespace-nowrap text-sm font-medium">
-                <button @click="editDeposit(deposit)" class="text-indigo-600 hover:text-indigo-900 mr-3">
-                  <i class="fas fa-edit"></i> Edit
-                </button>
-                <button @click="deleteDeposit(deposit.user_id)" class="text-red-600 hover:text-red-900">
-                  <i class="fas fa-trash"></i> Delete
-                </button>
-              </td>
-            </tr>
-            <tr v-if="paginatedDeposits.length === 0">
-              <td :colspan="auth.isAdmin ? 11 : 10" class="text-center py-8 text-gray-500">
-                No matching records found
-              </td>
-            </tr>
-          </tbody>
-        </table>
+                  <input
+                    :id="`${filterKey}-${option}`"
+                    type="checkbox"
+                    :checked="filterConfig.selected.includes(option)"
+                    @change="toggleSelection(filterKey, option)"
+                    class="w-4 h-4 mr-3 text-purple-600 rounded focus:ring-purple-500"
+                  />
+                  <label :for="`${filterKey}-${option}`" class="text-sm text-gray-700 cursor-pointer flex-1">
+                    {{ option }}
+                  </label>
+                  <span class="text-xs text-gray-400">
+                    {{ deposits.filter(d => d[filterKey] === option).length }}
+                  </span>
+                </div>
+                
+                <div v-if="filterConfig.options.filter(opt => !filterConfig.search || String(opt).toLowerCase().includes(filterConfig.search.toLowerCase())).length === 0" 
+                     class="text-center py-4 text-gray-500">
+                  No matching options
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="flex justify-end gap-3 pt-2 mt-4">
+            <button 
+              @click="isFilterModalOpen = false" 
+              class="bg-gray-500 text-white rounded-xl py-2.5 px-6 hover:bg-gray-600 focus:outline-none focus:ring-4 focus:ring-gray-300 transition-all duration-200 font-semibold"
+            >
+              Close
+            </button>
+            <button 
+              @click="isFilterModalOpen = false" 
+              class="bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-xl py-2.5 px-6 hover:from-purple-600 hover:to-pink-600 focus:outline-none focus:ring-4 focus:ring-purple-300 transition-all duration-200 font-semibold"
+            >
+              Apply Filters
+            </button>
+          </div>
+        </div>
+
+        <!-- sheet table  -->
+        <div class="overflow-x-auto w-full">
+          <table class="min-w-full table-auto bordered">
+            <thead>
+              <tr class="bg-gray-50">
+                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">#</th>
+                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User ID</th>
+                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
+                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
+                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Session</th>
+                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Month</th>
+                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Method</th>
+                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Pay To</th>
+                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Send From</th>
+                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                <th v-if="auth.isAdmin" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-200">
+              <tr v-for="(deposit, index) in paginatedDeposits" :key="deposit.user_id + index" class="hover:bg-gray-50">
+                <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">{{ (currentPage - 1) * itemsPerPage + index + 1 }}</td>
+                <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">{{ deposit.user_id }}</td>
+                <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">
+                  <span class="px-2 py-1 rounded-full text-xs font-medium"
+                    :class="{
+                      'bg-green-100 text-green-800': deposit.type === 'Monthly',
+                      'bg-blue-100 text-blue-800': deposit.type === 'Yearly',
+                      'bg-purple-100 text-purple-800': deposit.type === 'Maintainanc'
+                    }"
+                  >
+                    {{ deposit.type }}
+                  </span>
+                </td>
+                <td class="px-4 py-3 whitespace-nowrap text-sm font-semibold text-green-600">৳{{ parseFloat(deposit.amount).toLocaleString() }}</td>
+                <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">{{ deposit.session }}</td>
+                <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">{{ deposit.month }}</td>
+                <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">{{ deposit.method }}</td>
+                <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">{{ deposit.pay_to || '-' }}</td>
+                <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">{{ deposit.send_from || '-' }}</td>
+                <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">{{ deposit.date || '-' }}</td>
+                <td v-if="auth.isAdmin" class="px-4 py-3 whitespace-nowrap text-sm font-medium">
+                  <button @click="editDeposit(deposit)" class="text-indigo-600 hover:text-indigo-900 mr-3">
+                    <i class="fas fa-edit"></i> Edit
+                  </button>
+                  <button @click="deleteDeposit(deposit.user_id)" class="text-red-600 hover:text-red-900">
+                    <i class="fas fa-trash"></i> Delete
+                  </button>
+                </td>
+              </tr>
+              <tr v-if="paginatedDeposits.length === 0">
+                <td :colspan="auth.isAdmin ? 11 : 10" class="text-center py-8 text-gray-500">
+                  No matching records found
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
+      
       
       <!-- Pagination Controls -->
       <div class="flex flex-col sm:flex-row justify-between items-center gap-4 mt-6 pt-4 border-t border-gray-200">

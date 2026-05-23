@@ -4,6 +4,10 @@ export const useDataStore = defineStore('data', () => {
 
     const months = ref(
         [
+            'September',
+            'October',
+            'November',
+            'December',
             'January', 
             'February', 
             'March', 
@@ -12,10 +16,6 @@ export const useDataStore = defineStore('data', () => {
             'June', 
             'July', 
             'August', 
-            'September',
-            'October',
-            'November',
-            'December'
         ]
     );
     const sessions = ref(
@@ -55,6 +55,6 @@ export const useDataStore = defineStore('data', () => {
     return {months, sessions, types, methods, deposits, refreshDeposits, resetDeposits}
 }, 
 {
-  persist: true,
+  persist: false,
 }
 );

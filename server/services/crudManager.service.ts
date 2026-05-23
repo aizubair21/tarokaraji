@@ -36,7 +36,7 @@ class CRUDManagerService {
   // Register a sheet schema
   registerSchema(schema: SheetSchema) {
     this.schemas.set(schema.name.toLowerCase(), schema)
-    console.log(`✅ Schema registered: ${schema.name}`)
+    // console.log(`✅ Schema registered: ${schema.name}`)
   }
 
   // Get sheet ID by name

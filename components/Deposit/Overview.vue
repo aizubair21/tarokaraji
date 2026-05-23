@@ -63,7 +63,7 @@ const currentSessionDeposit = computed(() => {
 <template>
 	
  <!-- Deposits Overview Section -->
-<div>
+<div class="px-5">
   <h2 class="text-sm font-bold mb-4 pb-2"> অভারভিউ </h2>
   
   <div class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-4">

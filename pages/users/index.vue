@@ -93,7 +93,7 @@ onMounted(fetchMembers)
 <template>
   <div>
     <!-- Header Section -->
-    <div class="bg-white bg-opacity-90 backdrop-blur-md rounded-2xl p-6 shadow-2xl mb-6">
+    <div class="bg-white bg-opacity-90 backdrop-blur-md border-b p-6 mb-6">
       <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
           <h1 class="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
@@ -114,7 +114,7 @@ onMounted(fetchMembers)
     </div>
 
     <!-- Search and Filter Section -->
-    <div class="bg-white bg-opacity-90 backdrop-blur-md rounded-2xl p-6 shadow-2xl mb-6">
+    <div class="bg-white bg-opacity-90 backdrop-blur-md p-6 mb-6">
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
         <!-- Search Input -->
         <div class="md:col-span-2">
@@ -198,7 +198,7 @@ onMounted(fetchMembers)
     </div>
 
     <!-- Members List -->
-    <div class="bg-white bg-opacity-90 backdrop-blur-md rounded-2xl shadow-2xl overflow-hidden">
+    <div class="bg-white bg-opacity-90 backdrop-blur-md overflow-hidden">
       <div v-if="isLoading" class="p-12 text-center">
         <div class="animate-spin rounded-full h-12 w-12 border-t-4 border-b-4 border-purple-500 mx-auto"></div>
         <p class="mt-4 text-gray-500">লোড হচ্ছে...</p>

@@ -2,8 +2,9 @@
 const auth = useAuthStore()
 auth.isLoading = true;
 
+
 if (!auth.isAuthenticated && !auth.isAdmin) {
-  await navigateTo('/users')
+  navigateTo('/users')
 }
 
 const deposits = ref([]);
@@ -14,11 +15,8 @@ const getData = async () => {
   try {
     users.value = await $fetch('/api/crud/Users')
     deposits.value = await $fetch('/api/crud/Transactions');
-    //console.log('Deposits data:', deposits.value);
-    //console.log('Users data:', users.value);
     auth.isLoading = false;
   } catch (error) {
-    //console.error('Error fetching data:', error);
     auth.isLoading = false;
   }
 }
@@ -49,13 +47,14 @@ const totalDeposit = computed(() => {
 })
 
 const totalMember = computed(() => {
-  // Filter users where role is 'member' or 'admin' based on your user structure
-  return users.value?.filter(u => u[17] === 'admin')?.length || 0
+  // get total admins
+  // Filter users where role is 'admin'
+  return users.value?.filter(u => u.role === 'admin')?.length || 0
 })
 
 const totalUser = computed(() => {
   // Filter users where role is 'user'
-  return users.value?.filter(u => u[17] === 'user')?.length || 0
+  return users.value?.filter(u => u.role === 'user')?.length || 0
 })
 
 const lastFiveDeposit = computed(() => {
@@ -236,7 +235,7 @@ onBeforeMount(() => {
   </div>
   
   <!-- Empty State -->
-  <div v-else-if="deposits.length < 1" class="bg-white rounded-2xl p-12 shadow-2xl text-center">
+  <div v-else-if="deposits.length < 1" class="bg-white rounded-2xl p-12  text-center">
     <i class="fas fa-database text-6xl text-gray-300 mb-4"></i>
     <p class="text-gray-500 text-lg">কোনো তথ্য পাওয়া যায়নি</p>
     <p class="text-gray-400 text-sm mt-2">দয়া করে কিছুক্ষণ পর আবার চেষ্টা করুন</p>
@@ -246,7 +245,7 @@ onBeforeMount(() => {
   <div v-else class="space-y-6">
   
     <!-- Header -->
-    <div class="bg-white bg-opacity-90 backdrop-blur-md rounded-2xl p-6 shadow-2xl">
+    <div class="bg-white bg-opacity-90 backdrop-blur-md rounded-2xl p-6 ">
       <h1 class="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
         ড্যাশবোর্ড
       </h1>
@@ -321,7 +320,7 @@ onBeforeMount(() => {
       <div>
         <h2 class="mt-2 text-xl font-bold text-white mb-4 pb-2 border-b border-gray-300">সর্বশেষ নিবন্ধিত সদস্য</h2>
         
-        <div class="bg-white rounded-2xl shadow-2xl overflow-hidden">
+        <div class="bg-white rounded-2xl  overflow-hidden">
           <div class="divide-y divide-gray-200">
             <div v-for="(member, index) in lastFiveMembers" :key="index" 
                  class="flex items-center justify-between p-4 hover:bg-gray-50 transition-colors">
@@ -356,13 +355,13 @@ onBeforeMount(() => {
     <!-- User Section (Non-Admin) -->
     <div v-else class="mt-5">
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div class="bg-gradient-to-r from-blue-500 to-blue-600 rounded-2xl p-6 shadow-2xl text-white">
+        <div class="bg-gradient-to-r from-blue-500 to-blue-600 rounded-2xl p-6  text-white">
           <h3 class="text-lg font-semibold mb-2">আমার মোট আমানত</h3>
           <p class="text-3xl font-bold">{{ userTotalDeposit.toLocaleString() }} ৳</p>
           <p class="text-sm opacity-90 mt-2">মোট {{ userDeposits.length }} টি লেনদেন</p>
         </div>
         
-        <div class="bg-white rounded-2xl p-6 shadow-2xl">
+        <div class="bg-white rounded-2xl p-6 ">
           <h3 class="text-lg font-semibold text-gray-800 mb-4">সর্বশেষ লেনদেন</h3>
           <div class="space-y-3">
             <div v-for="(deposit, index) in userDeposits.slice(-3).reverse()" :key="index" 
