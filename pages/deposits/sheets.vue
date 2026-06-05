@@ -12,7 +12,7 @@ const isFilterModalOpen = ref(false)
 const isLoading = ref(true)
 const error = ref(null)
                                                                           
-const deposits = ref([])
+const deposits = ref([]);
 const editing = ref(null)
 const form = reactive({                                                                         
   user_id: '',
@@ -141,8 +141,7 @@ const fetchDeposits = async () => {
   error.value = null
   
   try {
-    const response = await $fetch('/api/crud/Transactions')
-    deposits.value = response
+    deposits.value = useDepositsStore().all
     
     // Populate filter options
     updateFilterOptions()

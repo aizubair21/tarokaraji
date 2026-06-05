@@ -132,49 +132,17 @@ const calculateSessionStats = () => {
 
 }
 
-
-// Fetch sessions
-const fetchSessions = async () => {
-  try {
-    const response = await $fetch('/api/crud/Sessions')
-    sessions.value = response
-
-  } catch (error) {
-    console.error('Error fetching sessions:', error)
-  }
-}
-
-// Fetch users (members)
-const fetchUsers = async () => {
-  try {
-    const response = await $fetch('/api/crud/Users')
-    // users.value = response.filter(u => u.role !== 'admin') // Filter out admins if needed
-    users.value = response // Filter out admins if needed
-  } catch (error) {
-    console.error('Error fetching users:', error)
-  }
-}
-
-// Fetch deposits
-const fetchDeposits = async () => {
-  try {
-    const response = await $fetch('/api/crud/Transactions')
-    deposits.value = response
-  } catch (error) {
-    console.error('Error fetching deposits:', error)
-  }
-}
-
 // Load all data
 const loadData = async () => {
-  isLoading.value = true
   error.value = null
   
   try {
-    await Promise.all([fetchSessions(), fetchUsers(), fetchDeposits()])
+    sessions.value = useSessionsStore().session;
+    users.value = useUsersStore().user; 
+    deposits.value = useDepositsStore().all;
   } catch (err) {
     error.value = err.message || 'Failed to load data'
-    console.error('Error loading data:', err)
+    //console.error('Error loading data:', err)
   } finally {
     isLoading.value = false
   }

@@ -3,7 +3,7 @@ const route = useRoute()
 const auth = useAuthStore()
 const data = useDataStore()
 const isLoading = ref(true)
-const user = ref([])
+const user = ref(useUsersStore().user.find(u => u.user_id == route.params.id));
 const deposits = ref([])
 const selectedSession = ref('')
 
@@ -19,13 +19,13 @@ if (!auth.isAuthenticated || (auth.userId != route.params.id && !auth.isAdmin) )
 
 
 // Available sessions (you can adjust based on your data)
-const sessions = ref([])
+const sessions = ref(useSessionsStore().session)
 
 // Fetch user data
 const fetchUser = async () => {
   try {
     const userId = route.params.id
-    const users = await $fetch('/api/crud/Users')
+    const users = useUsersStore().user;
     user.value = users.find(u => u.user_id === userId)
     
     if (!user.value) {
@@ -39,7 +39,7 @@ const fetchUser = async () => {
 // Fetch deposits
 const fetchDeposits = async () => {
   try {
-    const allDeposits = await $fetch('/api/crud/Transactions')
+    const allDeposits = useDepositsStore().all;
     const userId = user.value.user_id
     
     // Filter deposits for this user

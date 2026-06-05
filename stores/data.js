@@ -40,21 +40,8 @@ export const useDataStore = defineStore('data', () => {
 
     const types = ref(['Monthly', 'Yearly', 'Maintainanc']);
     const methods = ref(['Bkash', 'Nogod', 'Cash', 'Bank']);
-    const deposits = ref([]);
 
-    const refreshDeposits = async (userId) => 
-    {
-        return await $fetch('/api/sheets/deposits');
-    }
 
-    const resetDeposits = () => 
-    {
-        deposits.value = null;
-    }
-
-    return {months, sessions, types, methods, deposits, refreshDeposits, resetDeposits}
-}, 
-{
-  persist: false,
+    return {months, sessions, types, methods}
 }
 );

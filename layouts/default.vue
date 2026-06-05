@@ -36,7 +36,7 @@ const mainNavItems = computed(() => {
 const globalNavItems = [
   {name:'জানুন', path: '/about-us', icon:'M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z'},
   {name:'নিয়মাবলি', path: '/constitution', icon:'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z'},
-  {name:'কিভাবে যুক্ত হবেন', path: '/get-member', icon:'M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z'}
+  {name:'কিভাবে যুক্ত হবেন', path: '/', icon:'M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z'}
 ];
 
 // Bottom tab items for mobile
@@ -76,12 +76,13 @@ onUnmounted(() => {
 <template>
   <!-- <div class="min-h-screen  flex bg-gradient-to-br from-purple-400 via-pink-500 to-red-500"> -->
   <div class="min-h-screen flex">
+    
     <!-- Mobile backdrop -->
-    <!-- <div v-if="isAsideOpen" @click="isAsideOpen = false" class="fixed inset-0 bg-black bg-opacity-50 z-40 md:hidden"></div> -->
+    <div v-if="isAsideOpen" @click="isAsideOpen = false" class="fixed inset-0 bg-black bg-opacity-50 z-40 md:hidden"></div>
 
     <!-- Aside (Sidebar) - Sticky on desktop -->
     <aside 
-      class="w-64 fixed md:sticky top-0 inset-y-0 left-0 z-50 transform -translate-x-full transition-transform duration-300 ease-in-out md:translate-x-0 md:block h-screen overflow-y-auto"
+      class="w-64 bg-white shadow-2xl fixed md:sticky top-0 inset-y-0 left-0 z-50 transform -translate-x-full transition-transform duration-300 ease-in-out md:translate-x-0 md:block h-screen overflow-y-auto"
       :class="{ 'translate-x-0': isAsideOpen }">
       <div class="p-4">
         <div class="text-center mb-6">
@@ -151,11 +152,12 @@ onUnmounted(() => {
       <!-- Main scrollable content -->
       <main class="flex-1 p-2 sm:p-6 overflow-y-auto pb-20 md:pb-6">
         <div class="z-1">
+
           <!-- Error Message -->
-          <div v-if="error" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-2xl">
+          <!-- div v-if="error" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-2xl">
             <p>{{ error }}</p>
-          </div>
-          
+          </div> -->
+
           <slot></slot>
         </div>
       </main>

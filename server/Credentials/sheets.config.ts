@@ -18,9 +18,9 @@ export const sheetConfigs = {
       'permanent_address',
       'reference',
       'joined_date',
+      'user_id_display',
       'role',
-      'status',
-      'user_id_display'
+      'status'
     ]
   },
   

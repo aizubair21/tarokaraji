@@ -2,24 +2,14 @@
 const auth = useAuthStore()
 auth.isLoading = true;
 
-
 if (!auth.isAuthenticated && !auth.isAdmin) {
   navigateTo('/users')
 }
 
-const deposits = ref([]);
-const users = ref([]);
+const deposits = ref(useDepositsStore().all);
+const users = ref(useUsersStore().user);
 const members = ref([]);
 
-const getData = async () => {
-  try {
-    users.value = await $fetch('/api/crud/Users')
-    deposits.value = await $fetch('/api/crud/Transactions');
-    auth.isLoading = false;
-  } catch (error) {
-    auth.isLoading = false;
-  }
-}
 
 // Helper function to safely get amount from indexed array
 const getAmount = (deposit) => {
@@ -43,7 +33,7 @@ const getSession = (deposit) => {
 
 // Computed properties with proper indexed access
 const totalDeposit = computed(() => {
-  return deposits.value?.reduce((sum, d) => sum + getAmount(d), 0) || 0
+  return deposits.value?.reduce((sum, d) => sum + d.month, 0) || 0
 })
 
 const totalMember = computed(() => {
@@ -67,28 +57,28 @@ const lastFiveMembers = computed(() => {
 })
 
 const monthlyDeposit = computed(() => {
-  return deposits.value?.filter(d => getType(d) === 'Monthly')
-    .reduce((sum, d) => sum + getAmount(d), 0) || 0
+  return deposits.value?.filter(d => d.type === 'Monthly')
+    .reduce((sum, d) => sum + d.month, 0) || 0
 })
 
 const yearlyDeposit = computed(() => {
-  return deposits.value?.filter(d => getType(d) === 'Yearly')
-    .reduce((sum, d) => sum + getAmount(d), 0) || 0
+  return deposits.value?.filter(d => d.type === 'Yearly')
+    .reduce((sum, d) => sum + d.month, 0) || 0
 })
 
 const costDeposit = computed(() => {
-  return deposits.value?.filter(d => getType(d) === 'Maintainanc')
-    .reduce((sum, d) => sum + getAmount(d), 0) || 0
+  return deposits.value?.filter(d => d.type === 'Maintainanc')
+    .reduce((sum, d) => sum + d.month, 0) || 0
 })
 
 const currentMonthDeposit = computed(() => {
-  return deposits.value?.filter(d => getMonth(d) === auth.currentMonth && getSession(d) === auth.currentSession)
-    .reduce((sum, d) => sum + getAmount(d), 0) || 0
+  return deposits.value?.filter(d => d.moonth === auth.currentMonth && d.session === auth.currentSession)
+    .reduce((sum, d) => sum + d.month, 0) || 0
 })
 
 const currentSessionDeposit = computed(() => {
-  return deposits.value?.filter(d => getSession(d) === auth.currentSession)
-    .reduce((sum, d) => sum + getAmount(d), 0) || 0
+  return deposits.value?.filter(d => d.session === auth.currentSession)
+    .reduce((sum, d) => sum + d.month, 0) || 0
 })
 
 // Get user-specific deposits for non-admin users
@@ -100,7 +90,7 @@ const userDeposits = computed(() => {
 })
 
 const userTotalDeposit = computed(() => {
-  return userDeposits.value.reduce((sum, d) => sum + getAmount(d), 0) || 0
+  return userDeposits.value.reduce((sum, d) => sum + d.month, 0) || 0
 })
 
 
@@ -220,29 +210,29 @@ const dailyAverage = computed(() => {
 
 
 onBeforeMount(() => {
-  getData()
+  // getData()
 })
 </script>
 
 <template>
 
   <!-- Loading State -->
-  <div v-if="auth.isLoading" class="flex justify-center items-center h-96">
+ <!--  <div v-if="auth.isLoading" class="flex justify-center items-center h-96">
     <div class="text-center">
       <div class="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-blue-500 mx-auto"></div>
       <p class="mt-4 text-gray-500">লোড হচ্ছে...</p>
     </div>
-  </div>
+  </div> -->
   
   <!-- Empty State -->
-  <div v-else-if="deposits.length < 1" class="bg-white rounded-2xl p-12  text-center">
+ <!--  <div v-if="deposits.length < 1" class="bg-white rounded-2xl p-12  text-center">
     <i class="fas fa-database text-6xl text-gray-300 mb-4"></i>
     <p class="text-gray-500 text-lg">কোনো তথ্য পাওয়া যায়নি</p>
     <p class="text-gray-400 text-sm mt-2">দয়া করে কিছুক্ষণ পর আবার চেষ্টা করুন</p>
-  </div>
+  </div> -->
 
 
-  <div v-else class="space-y-6">
+  <div class="space-y-6">
   
     <!-- Header -->
     <div class="bg-white bg-opacity-90 backdrop-blur-md rounded-2xl p-6 ">

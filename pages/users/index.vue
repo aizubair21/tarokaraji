@@ -8,9 +8,13 @@ if (!auth.isAuthenticated) {
   await navigateTo('/login')
 }
 
-const members = ref([])
+definePageMeta({
+  keepalive:true,
+})
+
+const members = ref(useUsersStore().user)
 const searchQuery = ref('')
-const selectedRole = ref('all') // 'all', 'admin', 'user'
+const selectedRole = ref('user') // 'all', 'admin', 'user'
 const isLoading = ref(false)
 
 // Search and filter functionality
@@ -52,18 +56,6 @@ const stats = computed(() => {
   }
 })
 
-const fetchMembers = async () => {
-  isLoading.value = true
-  try {
-    members.value = await $fetch('/api/crud/Users')  
-    // console.log('Fetched members:', members.value)
-  } catch (error) {
-    //console.error('Error fetching members:', error)
-  } finally {
-    isLoading.value = false
-  }
-}
-
 const deleteMember = async (id) => {
   if (!confirm('আপনি কি এই সদস্যকে মুছে ফেলতে চান?')) return
   
@@ -87,7 +79,6 @@ const getRoleText = (role) => {
   return role === 'admin' ? 'পরিচালক' : 'সদস্য'
 }
 
-onMounted(fetchMembers)
 </script>
 
 <template>
@@ -149,7 +140,7 @@ onMounted(fetchMembers)
             <i class="fas fa-filter mr-2"></i> ফিল্টার
           </label>
           <div class="flex gap-2">
-            <button 
+            <!-- <button 
               @click="selectedRole = 'all'"
               class="flex-1 px-4 py-2 rounded-xl transition-all duration-200 font-medium"
               :class="selectedRole === 'all' 
@@ -157,7 +148,7 @@ onMounted(fetchMembers)
                 : 'bg-gray-100 text-gray-700 hover:bg-gray-200'"
             >
               সব ({{ stats.total }})
-            </button>
+            </button> -->
             <button 
               @click="selectedRole = 'admin'"
               class="flex-1 px-4 py-2 rounded-xl transition-all duration-200 font-medium"
@@ -213,7 +204,7 @@ onMounted(fetchMembers)
       <div v-else class="divide-y divide-gray-200">
         <div v-for="(member, index) in filteredMembers" :key="member.user_id" 
              class="p-4 hover:bg-gray-50 transition-colors">
-          <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+          <div :class="['flex flex-col md:flex-row md:items-center md:justify-between gap-4']">
             <!-- Member Info -->
             <div class="flex-1">
               <div class="flex items-start gap-3">
@@ -223,14 +214,14 @@ onMounted(fetchMembers)
                 </div>
                 
                 <!-- Details -->
-                <div class="flex-1">
+                <div v-if="member.status != 'inactive'" class="flex-1">
                   <div class="flex flex-wrap items-center gap-2 mb-1">
                     <h3 class="text-lg font-semibold text-gray-900">
                       {{ member.name_bangla || 'নাম নেই' }}
                     </h3>
-                    <span class="text-sm text-gray-500">
+                    <!-- <span class="text-sm text-gray-500">
                       ({{ member.name_english || 'N/A' }})
-                    </span>
+                    </span> -->
                     <span :class="['px-2 py-1 rounded-full text-xs font-medium', getRoleBadgeClass(member.role)]">
                       {{ getRoleText(member.role) }}
                     </span>
@@ -270,6 +261,8 @@ onMounted(fetchMembers)
                     </details>
                   </div>
                 </div>
+
+                <div v-else> সদস্যকে মুছে ফেলা হয়েছে । {{member.status}} </div>
               </div>
             </div>
             

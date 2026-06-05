@@ -22,9 +22,8 @@ class CRUDManagerService {
   private async init() {
     if (!this.auth) {
 
-      const credentials = JSON.parse(process.env.GOOGLE_SERVICE_ACCOUNT_CREDENTIALS)
+      const credentials = JSON.parse(process.env.GCC)
       this.auth = new google.auth.GoogleAuth({
-        // keyFile: 'server/Credentials/tarokaraji-e3946aeb32ae.json',
         credentials: credentials,
         scopes: ['https://www.googleapis.com/auth/spreadsheets']
       })
@@ -36,7 +35,6 @@ class CRUDManagerService {
   // Register a sheet schema
   registerSchema(schema: SheetSchema) {
     this.schemas.set(schema.name.toLowerCase(), schema)
-    // console.log(`✅ Schema registered: ${schema.name}`)
   }
 
   // Get sheet ID by name
@@ -71,7 +69,8 @@ class CRUDManagerService {
 
     const rows = response.data.values || []
     if (rows.length <= 1) return []
-
+    // return rows;
+  
     // Convert to objects
     const records = rows.slice(1).map((row: any[], index: number) => {
       const record: any = { id: index }

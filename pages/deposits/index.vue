@@ -6,36 +6,10 @@ if (!auth.isAuthenticated || !auth.isAdmin) {
   await navigateTo('/login')
 }
 
-const deposits = ref([]);
-const users = ref([]);
+const deposits = ref(useDepositsStore().all);
+const users = ref(useUsersStore().user);
 const error = ref();
 
-const fetchDeposits = async () => {
-  auth.isLoading = true;
-  error.value = null
-  
-  try {
-    const response = await $fetch('/api/crud/Transactions')
-    deposits.value = response
-    
-    // Populate filter options
-    //updateFilterOptions()
-
-  } catch (err) {
-    error.value = err.message || 'Failed to fetch data from Google Sheets'
-    console.error('Error fetching deposits:', err)
-  } finally {
-    auth.isLoading = false
-  }
-}
-
-onBeforeMount(() => {
-	fetchDeposits();
-});
-
-onMounted(() => {
-	users.value = $fetch('/api/sheets/users');
-});
 
 </script>
 

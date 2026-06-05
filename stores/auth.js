@@ -23,7 +23,8 @@ export const useAuthStore = defineStore('auth', () => {
 
     const now = new Date()
     const users = await $fetch('/api/sheets/users')
-    console.log(users)
+    //console.log(users)
+    
     const user = users.find(u => u[12] == email)
     if (!user) throw new Error('User not found')
 
