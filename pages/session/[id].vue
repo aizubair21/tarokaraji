@@ -19,18 +19,18 @@ const fetchSessionData = async () => {
   isLoading.value = true
   try {
     // Get session details
-    const sessions = await $fetch('/api/crud/Sessions')
+    const sessions = useSessionsStore().session;
     session.value = sessions.find(s => s.sessionName === sessionName)
     
     // Get all deposits
-    allDeposits.value = await $fetch('/api/crud/Transactions')
+    allDeposits.value = useDepositsStore().all;
     
     // Get all users
-    users.value = await $fetch('/api/crud/Users')
+    users.value = useUsersStore().user;
     
     // Set default selected month to current month
     const currentDate = new Date()
-    const currentMonthName = months[currentDate.getMonth()]
+    const currentMonthName = months[currentDate.getMonth() + 4]
     selectedMonth.value = currentMonthName
     
   } catch (error) {

@@ -13,16 +13,8 @@ const form = reactive({
 
 // Fetch all sessions - Updated path
 const fetchSessions = async () => {
-  isLoading.value = true
-  try {
-    // For GET request to api/session/session.get.ts
-    sessions.value = await $fetch('/api/crud/Sessions')
-    //console.log('Sessions loaded:', sessions.value)
-  } catch (error) {
-    //console.error('Error fetching sessions:', error)
-  } finally {
-    isLoading.value = false
-  }
+ sessions.value = useSessionsStore().session;
+ console.log(sessions.value);
 }
 
 // Create new session - Updated path

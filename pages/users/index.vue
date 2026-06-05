@@ -8,10 +8,6 @@ if (!auth.isAuthenticated) {
   await navigateTo('/login')
 }
 
-definePageMeta({
-  keepalive:true,
-})
-
 const members = ref(useUsersStore().user)
 const searchQuery = ref('')
 const selectedRole = ref('user') // 'all', 'admin', 'user'

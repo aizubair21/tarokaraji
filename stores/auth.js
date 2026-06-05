@@ -46,10 +46,6 @@ export const useAuthStore = defineStore('auth', () => {
       currentSession.value = `${year - 1}-${year - 2000}`
     }
 
-    if (userId.value) {
-      data.refreshDeposits();
-    }
-    
   }
 
   const logout = () => {

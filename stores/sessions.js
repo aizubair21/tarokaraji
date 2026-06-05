@@ -9,7 +9,7 @@ export const useSessionsStore = defineStore('sessions', () => {
     const fetchSessions = async () => 
     {
         auth.isLoading = true;
-        session.value = await $fetch('/api/crud/Transactions');
+        session.value = await $fetch('/api/crud/Sessions');
         auth.isLoading = false;
     };
 

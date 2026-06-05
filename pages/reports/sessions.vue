@@ -128,7 +128,7 @@ const calculateSessionStats = () => {
     sessionYearlyAmount : selectedSession.value.yearlyDeposit * users.value.length,
 
   }
-  console.log(sessionStats.value)
+  // console.log(sessionStats.value)
 
 }
 
