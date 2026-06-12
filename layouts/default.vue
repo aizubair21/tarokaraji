@@ -1,5 +1,5 @@
 <script setup>
-import Button from '~/components/Button.vue'
+// import Button from '~/components/Button.vue'
 
 const auth = useAuthStore()
 const isAsideOpen = ref(false)
@@ -46,7 +46,7 @@ const bottomTabItems = computed(() => {
   ]
   
   // Add profile/me for all authenticated users
-  items.push({ name: 'প্রোফাইল', path: `/users/${auth.userId}`, icon: 'M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z' })
+  items.push({ name: 'প্রোফাইল', path: `/users/${auth.user?.user_id}`, icon: 'M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z' })
   
   // Add constitution for all
   items.push({ name: 'বিধান', path: '/constitution', icon: 'M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253' })
@@ -138,7 +138,7 @@ onUnmounted(() => {
             <div v-if="auth.isLoading" class="flex justify-center items-center mr-3">
               <div class="animate-spin rounded-full h-5 w-5 border-b-2 border-purple-600"></div>
             </div>
-            <span class="text-gray-800">{{ auth.userName }}</span>
+            <span class="text-gray-800">{{ auth.user?.name_english || "Anonimous" }}</span>
           </h1>
         </div>
         <Button variant="danger" @click="logout" class="hidden md:flex">

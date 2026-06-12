@@ -10,7 +10,6 @@ if (auth.isAuthenticated) {
   await navigateTo('/')
 }
 
-
 definePageMeta({
   layout:false,  
 })
@@ -24,6 +23,7 @@ const login = async () => {
     error.value = e.message || 'Login failed'
   }
 }
+
 
 </script>
 

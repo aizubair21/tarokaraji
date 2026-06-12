@@ -1,44 +1,22 @@
 <script setup>
 const auth = useAuthStore()
-auth.isLoading = true;
 
-if (!auth.isAuthenticated && !auth.isAdmin) {
-  navigateTo('/users')
-}
+definePageMeta({ middleware: 'auth' });
 
 const deposits = ref(useDepositsStore().all);
 const users = ref(useUsersStore().user);
 const members = ref([]);
 
 
-// Helper function to safely get amount from indexed array
 const getAmount = (deposit) => {
   return parseFloat(deposit.amount) || 0
 }
 
-// Helper function to get type from indexed array
-const getType = (deposit) => {
-  return deposit.type || ''
-}
-
-// Helper function to get month from indexed array
-const getMonth = (deposit) => {
-  return deposit.month || ''
-}
-
-// Helper function to get session from indexed array
-const getSession = (deposit) => {
-  return deposit.session || ''
-}
-
-// Computed properties with proper indexed access
 const totalDeposit = computed(() => {
   return deposits.value?.reduce((sum, d) => sum + d.month, 0) || 0
 })
 
 const totalMember = computed(() => {
-  // get total admins
-  // Filter users where role is 'admin'
   return users.value?.filter(u => u.role === 'admin')?.length || 0
 })
 
@@ -52,7 +30,6 @@ const lastFiveDeposit = computed(() => {
 })
 
 const lastFiveMembers = computed(() => {
-  // Get last 5 users (adjust based on your user structure)
   return users.value?.slice(-5).reverse() || []
 })
 
@@ -72,7 +49,7 @@ const costDeposit = computed(() => {
 })
 
 const currentMonthDeposit = computed(() => {
-  return deposits.value?.filter(d => d.moonth === auth.currentMonth && d.session === auth.currentSession)
+  return deposits.value?.filter(d => d.month === auth.currentMonth && d.session === auth.currentSession)
     .reduce((sum, d) => sum + d.month, 0) || 0
 })
 
@@ -81,7 +58,6 @@ const currentSessionDeposit = computed(() => {
     .reduce((sum, d) => sum + d.month, 0) || 0
 })
 
-// Get user-specific deposits for non-admin users
 const userDeposits = computed(() => {
   if (!auth.isAdmin && auth.userId) {
     return deposits.value?.filter(d => d.user_id === auth.userId) || []
@@ -93,26 +69,6 @@ const userTotalDeposit = computed(() => {
   return userDeposits.value.reduce((sum, d) => sum + d.month, 0) || 0
 })
 
-
-// 1. Monthly Trends (Last 6 months)
-const monthlyTrends = computed(() => {
-  const months = ['জানুয়ারি', 'ফেব্রুয়ারি', 'মার্চ', 'এপ্রিল', 'মে', 'জুন', 
-                  'জুলাই', 'আগস্ট', 'সেপ্টেম্বর', 'অক্টোবর', 'নভেম্বর', 'ডিসেম্বর']
-  const trends = {}
-  
-  deposits.value.forEach(deposit => {
-    const month = deposit.month
-    const amount = getAmount(deposit)
-    if (!trends[month]) trends[month] = 0
-    trends[month] += amount
-  })
-  
-  return Object.entries(trends)
-    .map(([month, total]) => ({ month, total }))
-    .slice(-6) // Last 6 months
-})
-
-// 2. Top Contributors
 const topContributors = computed(() => {
   const contributions = {}
   
@@ -136,7 +92,6 @@ const topContributors = computed(() => {
     .slice(0, 5)
 })
 
-// 3. Payment Method Distribution
 const paymentMethodStats = computed(() => {
   const methods = {}
   
@@ -154,64 +109,6 @@ const paymentMethodStats = computed(() => {
   }))
 })
 
-// 5. Average Deposit Amount
-const averageDeposit = computed(() => {
-  if (deposits.value.length === 0) return 0
-  return totalDeposit.value / deposits.value.length
-})
-
-// 6. Collection Efficiency (Target vs Actual)
-const collectionEfficiency = computed(() => {
-  const expectedPerMember = 500 // Adjust based on your membership fee
-  const expectedTotal = totalUser.value * expectedPerMember
-  return (totalDeposit.value / expectedTotal) * 100
-})
-
-// 7. Active vs Inactive Members (based on last 3 months deposits)
-const activeMembers = computed(() => {
-  const last3Months = new Set()
-  const currentDate = new Date()
-  const months = ['জানুয়ারি', 'ফেব্রুয়ারি', 'মার্চ', 'এপ্রিল', 'মে', 'জুন', 
-                  'জুলাই', 'আগস্ট', 'সেপ্টেম্বর', 'অক্টোবর', 'নভেম্বর', 'ডিসেম্বর']
-  const currentMonthIndex = currentDate.getMonth()
-  const last3MonthNames = []
-  
-  for (let i = 0; i < 3; i++) {
-    let monthIndex = currentMonthIndex - i
-    if (monthIndex < 0) monthIndex += 12
-    last3MonthNames.push(months[monthIndex])
-  }
-  
-  const activeUserIds = new Set()
-  deposits.value.forEach(deposit => {
-    if (last3MonthNames.includes(deposit.month)) {
-      activeUserIds.add(deposit.user_id)
-    }
-  })
-  
-  return activeUserIds.size
-})
-
-// 8. Daily Collection Average (if date available)
-const dailyAverage = computed(() => {
-  const depositsByDate = {}
-  deposits.value.forEach(deposit => {
-    const date = deposit.date
-    if (date) {
-      if (!depositsByDate[date]) depositsByDate[date] = 0
-      depositsByDate[date] += getAmount(deposit)
-    }
-  })
-  
-  const totalDays = Object.keys(depositsByDate).length
-  if (totalDays === 0) return 0
-  return totalDeposit.value / totalDays
-})
-
-
-onBeforeMount(() => {
-  // getData()
-})
 </script>
 
 <template>

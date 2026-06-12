@@ -18,18 +18,18 @@ const form = reactive({
   month: '',
   method: '',
   pay_to: '',
-  send_number: '',
-  receive_number: '',
+  send_from: '',
+  send_to: '',
   date: '',
   trx_id: ''
 })
 
 const fetchDeposits = async () => {
-  deposits.value = await $fetch('/api/crud/Transactions')
+  deposits.value = useDepositsStore().all;
 }
 
 const fetchUsers = async () => {
-  users.value = await $fetch('/api/crud/Users')
+  users.value = useUsersStore().user;
 }
 
 const addDeposit = async () => {
@@ -52,14 +52,14 @@ const updateDeposit = async () => {
   })
   editing.value = null
   resetForm()
-  await fetchDeposits()
+  await useDepositsStore().fetchDeposits()
 }
 
 const deleteDeposit = async (id) => {
   await $fetch(`/api/crud/Transactions?id=${id}`, {
     method: 'DELETE',
   })
-  await fetchDeposits()
+  await useDepositsStore().fetchDeposits()
 }
 
 const resetForm = () => {
@@ -70,8 +70,8 @@ const resetForm = () => {
   form.month = ''
   form.method = ''
   form.pay_to = ''
-  form.send_number = ''
-  form.receive_number = ''
+  form.send_from = ''
+  form.send_to = ''
   form.date = ''
   form.trx_id = ''
 }
@@ -89,7 +89,7 @@ onMounted(async () => {
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         <select v-model="form.user_id" required class="border-2 border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-4 focus:ring-purple-300 focus:border-purple-500 transition-all duration-200">
           <option value="">Select Member</option>
-          <option v-for="user in users" :key="user.id" :value="user.id">
+          <option v-for="user in users" :key="user.id" :value="user.user_id">
              {{ user.user_id }} - {{ user.name_english }} - {{ user.phone_number }}
           </option>
         </select>
@@ -112,8 +112,8 @@ onMounted(async () => {
         </select> 
        
         <input v-model="form.pay_to" placeholder="Pay To" class="border-2 border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-4 focus:ring-purple-300 focus:border-purple-500 transition-all duration-200" />
-        <input v-model="form.send_number" placeholder="Send Number" class="border-2 border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-4 focus:ring-purple-300 focus:border-purple-500 transition-all duration-200" />
-        <input v-model="form.receive_number" placeholder="Receive Number" class="border-2 border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-4 focus:ring-purple-300 focus:border-purple-500 transition-all duration-200" />
+        <input v-model="form.send_from" placeholder="Send Number" class="border-2 border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-4 focus:ring-purple-300 focus:border-purple-500 transition-all duration-200" />
+        <input v-model="form.send_to" placeholder="Receive Number" class="border-2 border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-4 focus:ring-purple-300 focus:border-purple-500 transition-all duration-200" />
         <input v-model="form.date" type="date" required class="border-2 border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-4 focus:ring-purple-300 focus:border-purple-500 transition-all duration-200" />
         <input v-model="form.trx_id" placeholder="Transaction ID" class="border-2 border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-4 focus:ring-purple-300 focus:border-purple-500 transition-all duration-200" />
       </div>

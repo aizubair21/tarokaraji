@@ -4,19 +4,20 @@ export const sheetConfigs = {
     sheetName: 'Users',
     range: 'A:S',
     columns: [
-      'user_id',
       'name_bangla',
       'name_english',
       'father_name',
       'mother_name',
-      'date_of_birth',
+      'nid',
       'educational_qualification',
       'occupation',
+      'reference',
+      'reference_relation',
+      'reference_phone',
       'phone_number',
       'email',
-      'present_address',
       'permanent_address',
-      'reference',
+      'present_address',
       'joined_date',
       'user_id_display',
       'role',
@@ -26,7 +27,7 @@ export const sheetConfigs = {
   
   deposits: {
     sheetName: 'Deposits',
-    range: 'A:K',
+    range: 'A:L',
     columns: [
       'user_id',
       'session',
@@ -36,6 +37,7 @@ export const sheetConfigs = {
       'method',
       'pay_to',
       'send_from',
+      'send_to',
       'transaction_id',
       'date',
       'remarks'
@@ -44,13 +46,47 @@ export const sheetConfigs = {
   
   sessions: {
     sheetName: 'Sessions',
-    range: 'A:E',
+    range: 'A:F',
     columns: [
       'sessionName',
       'monthlyDeposit',
       'yearlyDeposit',
       'totalDeposit',
-      'createdAt'
+      'createdAt',
+      'details'
+    ]
+  },
+
+  Expendeture: {
+    sheetName: 'Expendeture',
+    range: 'A:Z',
+    columns: [
+      'name',
+      'amount',
+      'date',
+      'details',
+    ]
+  },
+  
+
+  Projects: {
+    sheetName: 'Projects',
+    range: 'A:Z',
+    columns: [
+      'name',
+      'amount',
+      'start_date',
+      'end_date',
+      'term',
+      'profitable',
+      'profit_earn',
+      'status',
+      'loss',
+      'benificent',
+      'benificary',
+      'benificary_phone',
+      'benificary_address',
+
     ]
   }
 }

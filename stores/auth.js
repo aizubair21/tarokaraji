@@ -1,65 +1,82 @@
-import { defineStore } from 'pinia'
-import bcrypt from 'bcryptjs'
-
+// stores/auth.ts
+import { defineStore } from 'pinia';
 
 export const useAuthStore = defineStore('auth', () => {
-  const token = ref(null)
-  const role = ref(null)
-  const userId = ref(null)
-  const userName = ref(null);
-  const isLoading = ref(false)
-  const currentMonth = ref()
-  const currentSession = ref()
-  
-  const data = useDataStore();
+  const user = ref(null);
+  const isLoading = ref(false);
+  const currentMonth = ref('');
+  const currentSession = ref('');
+  const dataStore = useDataStore(); // your data store
+  // const users = useUsersStore().user;
+
+  // Fetch current user on app start
+  const fetchUser = async () => {
+    try {
+      const userData = await $fetch('/api/auth/me');
+      user.value = userData;
+    } catch {
+      user.value = null;
+    }
+  };
 
   const login = async (email) => {
+    isLoading.value = true;
+    try {
+      const users = await $fetch('/api/crud/Users');
+      const logedUser = users.find(u => u.email === email);
+      //console.log(logedUser);
+      if (!logedUser) throw new Error('Invalid Creadentials !');
 
-    // Validate phone number
-    // const phoneRegex = /^(017|013|018|019|014|015)\d{8}$/
-    // if (!phoneRegex.test(phone)) {
-    //   throw new Error('Invalid phone number.')
-    // }
-
-    const now = new Date()
-    const users = await $fetch('/api/sheets/users')
-    //console.log(users)
-    
-    const user = users.find(u => u[12] == email)
-    if (!user) throw new Error('User not found')
-
-    token.value = now;
-    role.value = user[17]
-    userId.value = user[16]
-    userName.value = user[2]
-
-    // Set current month and session
-    
-    const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
-    currentMonth.value = monthNames[now.getMonth()]
-    const year = now.getFullYear()
-    const month = now.getMonth() + 1 // 1-12
-    if (month >= 9) { 
-      // September or later
-      currentSession.value = `${year}-${year + 1 - 2000}`
-    } else {
-      currentSession.value = `${year - 1}-${year - 2000}`
+      // const response = await $fetch('/api/auth/login', {
+      //   method: 'POST',
+      //   body: {logedUser},
+      // });
+      user.value = logedUser;
+      
+      // Set current month and session (same logic as before)
+      const now = new Date();
+      currentMonth.value = dataStore.months[now.getMonth() + 4] || '';
+      const year = now.getFullYear();
+      const month = now.getMonth() + 1;
+      if (month >= 9) {
+        currentSession.value = `${year}-${(year + 1) % 100}`;
+      } else {
+        currentSession.value = `${year - 1}-${year % 100}`;
+      }
+      
+      return true;
+    } catch (error) {
+      throw new Error(error.data?.message || error);
+    } finally {
+      isLoading.value = false;
+      dataStore.loading = false;
     }
+  };
 
-  }
+  const logout = async () => {
+    user.value = null;
+    navigateTo('/login');
+  };
 
-  const logout = () => {
-    token.value = null
-    role.value = null
-    userId.value = null
-    userName.value= null
-  }
+  const isAuthenticated = computed(() => !!user.value);
+  const isAdmin = computed(() => user.value?.role === 'admin');
 
-  const isAuthenticated = computed(() => !!token.value)
-  const isAdmin = computed(() => role.value === 'admin')
-  
+  // Initialize: fetch user on store creation
+  //fetchUser();
 
-  return { token, role, userId, login, logout, isAuthenticated, isAdmin, userName, isLoading, currentMonth, currentSession }
-}, {
-  persist: true,
-})
+  return {
+    user,
+    isLoading,
+    currentMonth,
+    currentSession,
+    login,
+    logout,
+    fetchUser,
+    isAuthenticated,
+    isAdmin,
+  };
+}, 
+{
+  persist:true,
+}
+);
