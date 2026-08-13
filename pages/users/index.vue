@@ -42,10 +42,10 @@ const filteredMembers = computed(() => {
 // Statistics
 const stats = computed(() => {
   const totalAdmins = members.value.filter(m => m.role=== 'admin').length
-  const totalUsers = members.value.filter(m => m.role === 'user').length
-  
+  const totalUsers = members.value.filter(m => m.status === 'active' && m.role == 'users').length
+  const tusr = members.value.filter(m => m.status == 'active').length
   return {
-    total: members.value.length,
+    total: tusr,
     admins: totalAdmins,
     users: totalUsers,
     filtered: filteredMembers.value.length
@@ -81,7 +81,7 @@ const getRoleText = (role) => {
   <div>
     <!-- Header Section -->
     <div class="bg-white bg-opacity-90 backdrop-blur-md border-b p-6 mb-6">
-      <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+      <div class="flex justify-between items-start md:items-center gap-4">
         <div>
           <h1 class="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
             সদস্যবৃন্দ
@@ -172,13 +172,13 @@ const getRoleText = (role) => {
         <div class="flex justify-between items-center text-sm">
           <div class="text-gray-600">
             <i class="fas fa-chart-line mr-1"></i>
-            দেখানো হচ্ছে {{ stats.filtered }} টি ফলাফল (মোট {{ stats.total }} টির মধ্যে)
+            {{ stats.filtered }} টি ফলাফল {{ stats.total }} টির মধ্যে
           </div>
           <button 
             @click="searchQuery = ''; selectedRole = 'all'" 
             class="text-red-600 hover:text-red-800 font-medium"
           >
-            <i class="fas fa-undo-alt mr-1"></i> সব ফিল্টার রিসেট
+            <i class="fas fa-undo-alt mr-1"></i> ফিল্টার রিসেট
           </button>
         </div>
       </div>
