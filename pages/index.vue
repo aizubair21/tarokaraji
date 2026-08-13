@@ -81,10 +81,10 @@ const topContributors = computed(() => {
   
   return Object.entries(contributions)
     .map(([userId, total]) => {
-      const user = users.value.find(u => u[0] === userId)
+      const user = users.value.find(u => u.user_id_display === userId)
       return {
         userId,
-        name: user ? user[1] : 'Unknown',
+        name: user ? user.name_english : 'Unknown',
         total
       }
     })
