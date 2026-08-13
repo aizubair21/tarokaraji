@@ -22,7 +22,7 @@ const totalMember = computed(() => {
 
 const totalUser = computed(() => {
   // Filter users where role is 'user'
-  return users.value?.filter(u => u.role === 'user')?.length || 0
+  return users.value?.filter(u => u.role === 'user' && u status == 'active')?.length || 0
 })
 
 const lastFiveDeposit = computed(() => {
@@ -58,7 +58,7 @@ const currentSessionDeposit = computed(() => {
     .reduce((sum, d) => sum + d.month, 0) || 0
 })
 
-const userDeposits = computed(() => {
+const userDeposits = compute youd(() => {
   if (!auth.isAdmin && auth.userId) {
     return deposits.value?.filter(d => d.user_id === auth.userId) || []
   }
