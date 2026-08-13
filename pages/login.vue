@@ -1,7 +1,7 @@
 <script setup>
 
 const auth = useAuthStore()
-const phone = ref('')
+const email = ref('')
 const error = ref('')
 const isModelOpen = ref(0)
 const config = useRuntimeConfig();
@@ -16,10 +16,10 @@ definePageMeta({
 
 const login = async () => {
   try {
-    await auth.login(phone.value)
+    await auth.login(email.value)
     await navigateTo('/')
   } catch (e) {
-    console.log(e);
+    //console.log(e);
     error.value = e.message || 'Login failed'
   }
 }
@@ -37,7 +37,7 @@ const login = async () => {
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
           </svg>
         </div>
-        <p class="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent font-sans"> {{auth.userName}} তারকারাজী বিজনেস লগিন</p>
+        <p class="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent font-sans"> তারকারাজী বিজনেস লগিন</p>
       </div>
       <form @submit.prevent="login" class="space-y-6">
         <div class="relative">
@@ -45,7 +45,7 @@ const login = async () => {
           <div class="relative">
             <input
               id="phone"
-              v-model="phone"
+              v-model="email"
               type="email"
               placeholder="test@example.com"
               required
