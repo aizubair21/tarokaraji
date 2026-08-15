@@ -6,9 +6,9 @@ export function registerSchemas() {
   CRUDManagerService.registerSchema({
     name: 'Users',
     columns: [
-      'joined_date', 'name_bangla', 'name_english', 'father_name', 'mother_name',
+      'name_bangla', 'name_english', 'father_name', 'mother_name',
       'NID', 'educational_qualification', 'occupation', 'reference','reference_relation','reference_phone', 'phone_number', 
-      'email', 'permanent_address', 'present_address', 'joined_date', 'user_id', 'role'
+      'email', 'permanent_address', 'present_address', 'joined_date', 'user_id', 'role', 'status'
     ],
     primaryKey: 'user_id',
     timestamp: true
