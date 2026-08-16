@@ -4,7 +4,7 @@ const props = defineProps({
   deposits: {
     type: Array,
     required: true,
-    default: () => []
+    default: []
   }
 })
 

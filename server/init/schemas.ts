@@ -6,9 +6,9 @@ export function registerSchemas() {
   CRUDManagerService.registerSchema({
     name: 'Users',
     columns: [
-      'name_bangla', 'name_english', 'father_name', 'mother_name',
-      'NID', 'educational_qualification', 'occupation', 'reference','reference_relation','reference_phone', 'phone_number', 
-      'email', 'permanent_address', 'present_address', 'joined_date', 'user_id', 'role', 'status'
+      'name_bangla',
+      'name_english', 'father_name', 'mother_name', 'NID', 'educational_qualification', 'occupation', 'reference','reference_relation','reference_phone', 'phone_number', 'email', 'permanent_address', 'present_address', 'joined_date', 'user_id', 'role',
+      'status'
     ],
     primaryKey: 'user_id',
     timestamp: true
@@ -18,9 +18,9 @@ export function registerSchemas() {
   CRUDManagerService.registerSchema({
     name: 'Transactions',
     columns: [
-      'user_id', 'session', 'amount', 'type', 'month', 'method',
-      'pay_to', 'send_from', 'transaction_id', 'date', 'remarks'
+      'user_id', 'session', 'amount', 'type', 'month', 'method','pay_to', 'send_from', 'transaction_id', 'date', 'remarks'
     ],
+    primarykey: 'user_id',
     timestamp: true
   })
 
@@ -30,6 +30,7 @@ export function registerSchemas() {
     columns: [
       'sessionName', 'monthlyDeposit', 'yearlyDeposit', 'totalDeposit', 'createdAt', 'details'
     ],
+    primarykey:'user_id',
     timestamp: true
   })
 

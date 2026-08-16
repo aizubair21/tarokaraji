@@ -17,6 +17,7 @@ class CRUDManagerService {
   constructor() {
     this.spreadsheetId = useRuntimeConfig().spreadsheetId;
     this.schemas = new Map()
+    // console.log(schemas)
   }
 
   private async init() {
@@ -35,6 +36,7 @@ class CRUDManagerService {
   // Register a sheet schema
   registerSchema(schema: SheetSchema) {
     this.schemas.set(schema.name.toLowerCase(), schema)
+    // console.log(this.schemas);
   }
 
   // Get sheet ID by name
@@ -79,8 +81,8 @@ class CRUDManagerService {
       })
       return record
     })
-    //console.log(records);
-    return records
+    // console.log(schema);
+    return records;
   }
 
   // Get single record by ID

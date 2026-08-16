@@ -13,7 +13,7 @@ const months = [
   'July', 'August'
 ]
 
-if (!auth.isAuthenticated || (auth.userId != route.params.id && !auth.isAdmin) ) {
+if (!auth.isAuthenticated || (auth.user.user_id != route.params.id && !auth.isAdmin) ) {
   await navigateTo('/login')
 }
 
@@ -244,7 +244,7 @@ onMounted(() => {
                     class="bg-white text-purple-600 rounded-lg px-4 py-2 hover:bg-opacity-90 transition-all">
             <i class="fas fa-edit mr-2"></i> এডিট
           </NuxtLink>
-          <NuxtLink to="/members" class="bg-white bg-opacity-20 rounded-lg px-4 py-2 hover:bg-opacity-30 transition-all">
+          <NuxtLink to="/users" class="bg-white bg-opacity-20 rounded-lg px-4 py-2 hover:bg-opacity-30 transition-all">
             <i class="fas fa-arrow-left mr-2"></i> ফিরে যান
           </NuxtLink>
         </div>

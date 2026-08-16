@@ -13,7 +13,11 @@ export const useUsersStore = defineStore('users', () => {
         auth.isLoading = false;
     };
 
+    const admins = async () => {
+        return await user.value.filter(m => m.role == 'admin' && m.status ==  'active');
+    };
+
     return {
-        fetchUsers, user,
+        fetchUsers, user, admins,
     };
 });

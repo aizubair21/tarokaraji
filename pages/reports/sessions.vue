@@ -198,66 +198,54 @@ onMounted(() => {
     <div class="bg-white bg-opacity-90 backdrop-blur-md rounded-2xl p-6 shadow-2xl">
       <h1 class="text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
         সেশন ভিত্তিক রিপোর্ট
+
       </h1>
-      <p class="text-sm text-gray-500 mt-1">টার্ম ওভারভিউ (প্রত্যাশিত / নিশ্চিত)</p>
-    </div>
+        <!-- Session Selector -->
+        <div class="mt-6">
+          <div class="flex items-center justify-between md:justify-start gap-3">
+            <select class="px-4 py-2 rounded-lg ">
+              <option > Select Sessions </option>
+              <option @click="onSessionSelect(s)" v-for="s in sessions" :value="s"  > {{s.sessionName}} </option>
+            </select>
 
-    <!-- Session Selector -->
-    <div class="bg-white bg-opacity-90 backdrop-blur-md rounded-2xl p-6 shadow-2xl">
-      <div class="flex justify-between items-center">
-        <label class="block text-sm font-medium text-gray-700 mb-2">
-          <i class="fas fa-calendar-alt mr-2 text-purple-600"></i>
-          সেশন 
-        </label>
-
-       
-      </div>
-      <div class="flex flex-wrap gap-3">
-        <button
-          v-for="session in sessions"
-          :key="session.sessionName"
-          @click="onSessionSelect(session)"
-          class="px-6 py-2 rounded-xl transition-all duration-200 font-medium"
-          :class="selectedSession?.sessionName === session.sessionName 
-            ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-lg' 
-            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'"
-        >
-          {{ session.sessionName }}
-        </button>
-      </div>
-      <p v-if="sessions.length === 0" class="text-gray-500 text-sm mt-2">
-        কোনো সেশন পাওয়া যায়নি
-      </p>
-       <button
-          :key="`types_1`"
-          @click="onSelectedTypes('Monthly')"
-          class="mt-1 px-6 py-2 rounded-xl transition-all duration-200 font-normal"
-          :class="selectedType === 'Monthly' 
-            ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-lg' 
-            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'"
-        >
-          M
-        </button>
-        <button
-          :key="`types_2`"
-          @click="onSelectedTypes('Yearly')"
-          class="px-6 py-2 rounded-xl transition-all duration-200 font-normal"
-          :class="selectedType === 'Yearly' 
-            ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-lg' 
-            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'"
-        >
-          Y
-        </button> 
-        <button
-          :key="`types_2`"
-          @click="onSelectedTypes('Maintainanc')"
-          class="px-6 py-2 rounded-xl transition-all duration-200 font-normal"
-          :class="selectedType === 'Maintainanc' 
-            ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-lg' 
-            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'"
-        >
-          C
-        </button>
+            <div class="flex gap-3">
+                <button
+              :key="`types_1`"
+              @click="onSelectedTypes('Monthly')"
+              class="mt-1 px-6 py-2 rounded-xl transition-all duration-200 font-normal"
+              :class="selectedType === 'Monthly' 
+                ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-lg' 
+                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'"
+              >
+                M
+              </button>
+              <button
+                :key="`types_2`"
+                @click="onSelectedTypes('Yearly')"
+                class="px-6 py-2 rounded-xl transition-all duration-200 font-normal"
+                :class="selectedType === 'Yearly' 
+                  ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-lg' 
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'"
+              >
+                Y
+              </button> 
+              <button
+                :key="`types_2`"
+                @click="onSelectedTypes('Maintainanc')"
+                class="px-6 py-2 rounded-xl transition-all duration-200 font-normal"
+                :class="selectedType === 'Maintainanc' 
+                  ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-lg' 
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'"
+              >
+                C
+              </button>
+            </div>
+          </div>
+          <p v-if="sessions.length === 0" class="text-gray-500 text-sm mt-2">
+            কোনো সেশন পাওয়া যায়নি
+          </p>
+          
+        </div>
     </div>
 
     <!-- Loading State -->

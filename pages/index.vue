@@ -3,39 +3,29 @@ const auth = useAuthStore()
 
 definePageMeta({ middleware: 'auth' });
 
-const deposits = ref(useDepositsStore().all);
-const users = ref(useUsersStore().user);
+const deposits = ref([]);
+const users = ref([]);
 const members = ref([]);
 
+onMounted( async() => {
+  deposits.value = useDepositsStore().all;
+  users.vaue = useUsersStore().user;
+})
 
 const getAmount = (deposit) => {
   return parseFloat(deposit.amount) || 0
 }
 
 const totalDeposit = computed(() => {
-  return deposits.value?.reduce((sum, d) => sum + d.amount, 0) || 0
+  return deposits.value?.reduce((sum, d) => sum + getAmount(d), 0) || 0
 })
-console.log(totalDeposit);
 
-// const totalMember = computed(() => {
-//   return users.value?.filter(u => u.role === 'admin')?.length || 0
-// })
-
-// const totalUser = computed(() => {
-//   // Filter users where role is 'user'
-//   return users.value?.filter(u => u.role === 'user' && u.status === 'active')?.length || 0
-// })
-
-// const lastFiveDeposit = computed(() => {
-//   return deposits.value?.slice(-5).reverse() || []
-// })
 
 const lastFiveMembers = computed(() => {
   return users.value?.slice(-5).reverse() || []
 })
 
 // mc
-39
 const userDeposits = computed(() => {
   if (!auth.isAdmin && auth.userId) {
     return deposits.value?.filter(d => d.user_id === auth.userId) || []
@@ -59,10 +49,10 @@ const topContributors = computed(() => {
 
   return Object.entries(contributions)
     .map(([userId, total]) => {
-      const user = users.value.find(u => u.user_id === userId)
+      const user = useUsersStore().user.find(u => u.user_id == userId)
       return {
         userId,
-        name: user ? user.name_english : 'Unknown',
+        name: user ? user.name_bangla : 'Unknown',
         total
       }
     })
@@ -122,7 +112,7 @@ const paymentMethodStats = computed(() => {
     </div>
 
     <!-- Overview Section -->
-    <DepositOverview v-if="auth.isAdmin" :deposits />
+    <DepositOverview :deposits  />
 
     <!-- Top Contributors & Payment Methods -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
