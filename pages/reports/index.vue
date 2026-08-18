@@ -7,57 +7,57 @@ const reportCategories = ref([
   {
     id: 'user-summary',
     name: 'ইউজার সামারি রিপোর্ট',
-    description: 'সকল ব্যবহারকারীর মোট জমা, বকেয়া এবং পরিশোধের হার সংক্রান্ত বিস্তারিত রিপোর্ট',
+    description: 'সেশন অনুযায়ী সকল ব্যবহারকারীর মোট জমা, বকেয়া এবং পরিশোধের হার সংক্রান্ত বিস্তারিত রিপোর্ট',
     icon: 'fas fa-users',
     color: 'from-blue-500 to-cyan-500',
     route: '/reports/summary',
     features: ['সেশন ভিত্তিক ফিল্টার', 'চলতি মাস/পূর্ণ বছর হিসাব', 'এক্সপোর্ট সুবিধা']
   },
-  {
-    id: 'paid-months',
-    name: 'পরিশোধিত মাস রিপোর্ট',
-    description: 'ব্যবহারকারীভিত্তিক পরিশোধিত মাসের বিস্তারিত তালিকা',
-    icon: 'fas fa-check-circle',
-    color: 'from-green-500 to-emerald-500',
-    route: '/reports/paid-months',
-    features: ['মাস ভিত্তিক ফিল্টার', 'সেশন নির্বাচন', 'পিডিএফ ডাউনলোড']
-  },
-  {
-    id: 'unpaid-months',
-    name: 'অপরিশোধিত মাস রিপোর্ট',
-    description: 'ব্যবহারকারীদের বকেয়া মাসের বিস্তারিত তালিকা ও জরুরি পদক্ষেপ',
-    icon: 'fas fa-exclamation-triangle',
-    color: 'from-red-500 to-orange-500',
-    route: '/reports/unpaid-months',
-    features: ['বকেয়া মাস ফিল্টার', 'রিমাইন্ডার পাঠান', 'এক্সপোর্ট সুবিধা']
-  },
+  // {
+  //   id: 'paid-months',
+  //   name: 'পরিশোধিত মাস রিপোর্ট',
+  //   description: 'ব্যবহারকারীভিত্তিক পরিশোধিত মাসের বিস্তারিত তালিকা',
+  //   icon: 'fas fa-check-circle',
+  //   color: 'from-green-500 to-emerald-500',
+  //   route: '/reports/paid-months',
+  //   features: ['মাস ভিত্তিক ফিল্টার', 'সেশন নির্বাচন', 'পিডিএফ ডাউনলোড']
+  // },
+  // {
+  //   id: 'unpaid-months',
+  //   name: 'অপরিশোধিত মাস রিপোর্ট',
+  //   description: 'ব্যবহারকারীদের বকেয়া মাসের বিস্তারিত তালিকা ও জরুরি পদক্ষেপ',
+  //   icon: 'fas fa-exclamation-triangle',
+  //   color: 'from-red-500 to-orange-500',
+  //   route: '/reports/unpaid-months',
+  //   features: ['বকেয়া মাস ফিল্টার', 'রিমাইন্ডার পাঠান', 'এক্সপোর্ট সুবিধা']
+  // },
   {
     id: 'session-wise',
     name: 'সেশন ভিত্তিক রিপোর্ট',
-    description: 'সেশন অনুযায়ী মোট জমা, লক্ষ্যমাত্রা এবং অগ্রগতির রিপোর্ট',
+    description: 'সেশনরে মোট জমা, লক্ষ্যমাত্রা এবং অগ্রগতির রিপোর্ট । সেশন অনুযায়ী মাসিক জমা ... ',
     icon: 'fas fa-calendar-alt',
     color: 'from-purple-500 to-pink-500',
     route: '/reports/sessions',
     features: ['সেশন তুলনা', 'গ্রাফ ভিউ', 'লক্ষ্যমাত্রা ট্র্যাকিং']
   },
-  {
-    id: 'monthly-trends',
-    name: 'মাসিক প্রবণতা রিপোর্ট',
-    description: 'মাস ভিত্তিক জমার প্রবণতা এবং তুলনামূলক বিশ্লেষণ',
-    icon: 'fas fa-chart-line',
-    color: 'from-indigo-500 to-purple-500',
-    route: '/reports/monthly-trends',
-    features: ['ট্রেন্ড বিশ্লেষণ', 'গ্রাফিক্যাল ভিউ', 'প্রেডিকশন']
-  },
-  {
-    id: 'collection-efficiency',
-    name: 'সংগ্রহ দক্ষতা রিপোর্ট',
-    description: 'সেশন ও মাস অনুযায়ী সংগ্রহ দক্ষতার হার ও বিশ্লেষণ',
-    icon: 'fas fa-chart-pie',
-    color: 'from-yellow-500 to-orange-500',
-    route: '/reports/collection-efficiency',
-    features: ['দক্ষতা মেট্রিক্স', 'টার্গেট ভিএস অ্যাকচুয়াল', 'রেটিং সিস্টেম']
-  },
+  // {
+  //   id: 'monthly-trends',
+  //   name: 'মাসিক প্রবণতা রিপোর্ট',
+  //   description: 'মাস ভিত্তিক জমার প্রবণতা এবং তুলনামূলক বিশ্লেষণ',
+  //   icon: 'fas fa-chart-line',
+  //   color: 'from-indigo-500 to-purple-500',
+  //   route: '/reports/monthly-trends',
+  //   features: ['ট্রেন্ড বিশ্লেষণ', 'গ্রাফিক্যাল ভিউ', 'প্রেডিকশন']
+  // },
+  // {
+  //   id: 'collection-efficiency',
+  //   name: 'সংগ্রহ দক্ষতা রিপোর্ট',
+  //   description: 'সেশন ও মাস অনুযায়ী সংগ্রহ দক্ষতার হার ও বিশ্লেষণ',
+  //   icon: 'fas fa-chart-pie',
+  //   color: 'from-yellow-500 to-orange-500',
+  //   route: '/reports/collection-efficiency',
+  //   features: ['দক্ষতা মেট্রিক্স', 'টার্গেট ভিএস অ্যাকচুয়াল', 'রেটিং সিস্টেম']
+  // },
   {
     id: 'top-contributors',
     name: 'শীর্ষ অবদানকারী রিপোর্ট',
@@ -73,7 +73,7 @@ const reportCategories = ref([
     description: 'বিভিন্ন পেমেন্ট পদ্ধতির ব্যবহার ও জনপ্রিয়তা বিশ্লেষণ',
     icon: 'fas fa-credit-card',
     color: 'from-teal-500 to-green-500',
-    route: '/reports/payment-methods',
+    route: '/reports/payments',
     features: ['মেথড ভিত্তিক বিশ্লেষণ', 'ট্রেন্ড চার্ট', 'ব্যবহারকারী প্রেফারেন্স']
   }
 ])
@@ -146,7 +146,7 @@ onMounted(() => {
   <div class="space-y-6">
 
     <!-- Header -->
-    <div class="bg-white bg-opacity-90 backdrop-blur-md rounded-2xl p-6 shadow-2xl">
+    <!-- <div class="bg-white bg-opacity-90 backdrop-blur-md rounded-2xl p-6 shadow-2xl">
       <div class="flex justify-between items-center">
         <div>
           <h1 class="text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
@@ -162,8 +162,7 @@ onMounted(() => {
         </button>
       </div>
       
-      <!-- Quick Stats -->
-      <!-- <div class="grid grid-cols-1 md:grid-cols-4 gap-4 pt-4 border-t border-gray-200">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-4 pt-4 border-t border-gray-200">
         <div class="flex items-center gap-3 p-3 bg-blue-50 rounded-xl">
           <div class="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center">
             <i class="fas fa-chart-line text-white text-sm"></i>
@@ -203,8 +202,8 @@ onMounted(() => {
             <p class="text-xl font-bold text-red-600">৳{{ stats.pendingDues.toLocaleString() }}</p>
           </div>
         </div>
-      </div> -->
-    </div>
+      </div> 
+    </div> -->
 
     <!-- Search and Filter Bar -->
    <!--  <div class="bg-white bg-opacity-90 backdrop-blur-md rounded-2xl p-6 shadow-2xl">
@@ -304,7 +303,7 @@ onMounted(() => {
     </div> -->
 
     <!-- All Reports Grid -->
-    <div class="bg-white bg-opacity-90 backdrop-blur-md rounded-2xl p-6 shadow-2xl">
+    <div class="bg-white bg-opacity-90 backdrop-blur-md rounded-2xl ">
       <h2 class="text-xl font-bold text-gray-800 mb-4">
         <i class="fas fa-list-alt text-purple-600 mr-2"></i>
         সকল রিপোর্ট
@@ -333,21 +332,7 @@ onMounted(() => {
           
           <h3 class="text-lg font-bold text-gray-800 mb-2">{{ report.name }}</h3>
           <p class="text-sm text-gray-600 mb-3">{{ report.description }}</p>
-          
-          <div class="flex flex-wrap gap-2 mt-3 pt-3 border-t border-gray-100">
-            <span v-for="feature in report.features.slice(0, 2)" :key="feature" 
-                  class="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full">
-              {{ feature }}
-            </span>
-            <span v-if="report.features.length > 2" class="text-xs text-gray-400">
-              +{{ report.features.length - 2 }} more
-            </span>
-          </div>
-          
-          <div class="mt-3 flex items-center justify-between text-xs">
-            <span class="text-purple-600 font-medium">রিপোর্ট দেখুন</span>
-            <i class="fas fa-chart-simple text-gray-400"></i>
-          </div>
+
         </div>
       </div>
     </div>

@@ -290,7 +290,7 @@ onMounted(() => {
 <template>
   <div class="space-y-6">
     <!-- Header -->
-    <div class="bg-white bg-opacity-90 backdrop-blur-md rounded-2xl p-6 ">
+    <div class="print:hidden bg-white bg-opacity-90 backdrop-blur-md rounded-2xl p-6 ">
       <div class="flex justify-between items-center mb-4">
         <div>
           <h1 class="text-3xl font-bold bg-gradient-to-r from-green-600 to-teal-600 bg-clip-text text-transparent">
@@ -344,15 +344,15 @@ onMounted(() => {
     </div>
 
     <!-- Stats Cards -->
-    <DepositOverview :deposits />
+    <DepositOverview :deposits class="print:hidden" />
 
     <!-- Error Message -->
-    <div v-if="error" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-2xl">
+    <div v-if="error" class="print:hidden bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-2xl">
       <p>{{ error }}</p>
     </div>
 
     <!-- Loading State -->
-    <div v-if="isLoading" class="bg-white bg-opacity-90 backdrop-blur-md rounded-2xl p-12 text-center">
+    <div v-if="isLoading" class="print:hidden bg-white bg-opacity-90 backdrop-blur-md rounded-2xl p-12 text-center">
       <div class="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-green-500 mx-auto"></div>
       <p class="mt-4 text-gray-500">Loading data from Google Sheets...</p>
     </div>
@@ -363,7 +363,7 @@ onMounted(() => {
       <div class="flex ">
 
         <!-- left filter asside  -->
-        <div class="min-w-\[250px\] mr-4 hidden md:block">
+        <div class="min-w-\[250px\] mr-4 hidden md:block print:hidden">
           <div class="flex justify-between items-center mb-6">
             <h3 class="text-2xl font-bold text-gray-900">Filter Deposits</h3>
             <button 

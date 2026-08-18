@@ -161,15 +161,10 @@ const fetchData = async () => {
   error.value = null
   
   try {
-    const [usersRes, depositsRes, sessionsRes] = await Promise.all([
-      $fetch('/api/crud/Users'),
-      $fetch('/api/crud/Transactions'),
-      $fetch('/api/crud/Sessions')
-    ])
-    
-    users.value = usersRes
-    deposits.value = depositsRes
-    sessions.value = sessionsRes
+   
+    users.value = useUsersStore().user;
+    deposits.value = useDepositsStore().all;
+    sessions.value = useSessionsStore().session;
     
     updateReportStats()
 
@@ -224,15 +219,15 @@ onMounted(() => {
 <template>
   <div class="space-y-6">
     <!-- Header -->
-    <div class="bg-white bg-opacity-90 backdrop-blur-md rounded-2xl p-6 shadow-2xl">
-      <div class="flex justify-between items-center mb-4">
+    <div class="static top-0 bg-white bg-opacity-90 backdrop-blur-md rounded-2xl md:flex justify-between items-center py-3">
+      <div class="flex justify-between items-center">
         <div>
           <h1 class="text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
             ইউজার পেমেন্ট রিপোর্ট
           </h1>
           <p class="text-sm text-gray-500 mt-1">ব্যবহারকারীভিত্তিক মাসিক পরিশোধের বিস্তারিত রিপোর্ট</p>
         </div>
-        <div class="flex gap-3">
+       <!--  <div class="flex gap-3">
           <button 
             @click="exportToCSV"
             class="bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-xl py-2.5 px-5 hover:from-green-600 hover:to-emerald-700 transition-all font-semibold shadow-lg"
@@ -251,28 +246,32 @@ onMounted(() => {
           >
             <i class="fas fa-sync-alt mr-2"></i> রিফ্রেশ
           </button>
-        </div>
+        </div> -->
       </div>
       
       <!-- Filters -->
-      <div class="flex flex-wrap gap-4 pt-4 border-t border-gray-200">
-        <div class="flex-1 min-w-[200px]">
-          <label class="block text-sm font-medium text-gray-700 mb-1">সেশন নির্বাচন</label>
+      <div class="">
+        <div class="flex items-center justify-between gap-3">
+          <!-- <label class="block text-sm font-medium text-gray-700 mb-1">সেশন নির্বাচন</label> -->
           <select 
             v-model="selectedSession"
-            class="w-full px-4 py-2 border rounded-xl focus:ring-2 focus:ring-purple-500"
+            class="w-full bg-white  md:w-auto px-4 py-2"
           >
             <option value="all">সব সেশন</option>
             <option v-for="session in sessions" :key="session.sessionName" :value="session.sessionName">
               {{ session.sessionName }}
             </option>
           </select>
+
+          <div>
+            <button class="print:hidden px-4 py-1" onclick="window.print()"> <i class="fas fa-print"> </i> </button>
+          </div>
         </div>
       </div>
     </div>
 
     <!-- Overview Stats Cards -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
       <div class="bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl p-5 text-white shadow-xl">
         <div class="flex justify-between items-start">
           <div>
@@ -315,7 +314,7 @@ onMounted(() => {
     </div>
 
     <!-- Status Summary Cards -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+    <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
       <div class="bg-gradient-to-r from-green-50 to-green-100 rounded-2xl p-4 shadow-lg border border-green-200">
         <div class="flex items-center justify-between">
           <div>

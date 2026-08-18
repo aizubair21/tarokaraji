@@ -9,7 +9,8 @@ export const useUsersStore = defineStore('users', () => {
     const fetchUsers = async () => 
     {
         auth.isLoading = true;
-        user.value = await $fetch('/api/crud/Users');
+        const u = await $fetch('/api/crud/Users');
+        user.value = await u.filter(u => u.status == 'active');
         auth.isLoading = false;
     };
 

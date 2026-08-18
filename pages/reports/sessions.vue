@@ -1,6 +1,7 @@
 <script setup>
 const auth = useAuthStore()
 const data = useDataStore()
+const expandAll = ref(false);
 
 const isLoading = ref(false)
 const error = ref(null)
@@ -53,8 +54,7 @@ const userPaymentStatus = computed(() => {
       const userDeposits = deposits.value.filter(d => 
         d.user_id === user.user_id && 
         d.session === selectedSession.value.sessionName &&
-        d.month === month.name && 
-        d.type === selectedType.value
+        d.month === month.name
       )
       
       const totalPaid = userDeposits.reduce((sum, d) => sum + (parseFloat(d.amount) || 0), 0)
@@ -195,20 +195,28 @@ onMounted(() => {
 <template>
   <div class="space-y-6">
     <!-- Header -->
-    <div class="bg-white bg-opacity-90 backdrop-blur-md rounded-2xl p-6 shadow-2xl">
-      <h1 class="text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+    <div class="bg-white bg-opacity-90 backdrop-blur-md rounded-2xl p-6 md:flex items-center justify-between">
+      <!-- <h1 class="text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
         সেশন ভিত্তিক রিপোর্ট
-
+      </h1>  -->
+      <h1 class="text-3xl text-gray-600 font-bold">
+        সেশন ভিত্তিক রিপোর্ট
       </h1>
         <!-- Session Selector -->
-        <div class="mt-6">
-          <div class="flex items-center justify-between md:justify-start gap-3">
-            <select class="px-4 py-2 rounded-lg ">
+        <div class="">
+          <p v-if="sessions.length == 0" class="text-gray-500 text-sm mt-2">
+            কোনো সেশন পাওয়া যায়নি 
+          </p>
+          <div v-else class="flex items-center justify-between md:justify-start gap-3">
+            <select class="px-4 py-2 rounded-lg w-full md:w-auto bg-white">
               <option > Select Sessions </option>
               <option @click="onSessionSelect(s)" v-for="s in sessions" :value="s"  > {{s.sessionName}} </option>
             </select>
 
-            <div class="flex gap-3">
+
+            <button class="print:hidden px-3" onclick="window.print()"> <i class="fas fa-print"> </i> </button>
+
+           <!--  <div class="flex gap-3">
                 <button
               :key="`types_1`"
               @click="onSelectedTypes('Monthly')"
@@ -239,11 +247,8 @@ onMounted(() => {
               >
                 C
               </button>
-            </div>
+            </div> -->
           </div>
-          <p v-if="sessions.length === 0" class="text-gray-500 text-sm mt-2">
-            কোনো সেশন পাওয়া যায়নি
-          </p>
           
         </div>
     </div>
@@ -345,6 +350,8 @@ onMounted(() => {
           <p class="text-sm text-white opacity-90">মাস অনুযায়ী জমার বিবরণ</p>
         </div>
         
+        <div class="px-6 py-4 flex items-center gap-4"> <input class="m-0" type="checkbox" v-model="expandAll" id="expandAll"> <label for='expandAll'>Expand All </label> </div>
+        
         <div class="divide-y divide-gray-200">
           <div v-for="month in monthData" :key="month.month" class="hover:bg-gray-50 transition-colors">
             <!-- Month Header -->
@@ -354,7 +361,7 @@ onMounted(() => {
             >
               <div class="flex items-center gap-3 mb-2 md:mb-0">
                 <i class="fas fa-chevron-right transition-transform duration-200" 
-                   :class="{ 'rotate-90': expandedMonths.has(month.month) }"></i>
+                   :class="{ 'rotate-90': expandedMonths.has(month.month) || expandAll }"></i>
                 <h3 class="text-lg font-semibold text-gray-800">{{ month.month }}</h3>
               </div>
               
@@ -379,7 +386,7 @@ onMounted(() => {
             </div>
             
             <!-- Expanded Month Details -->
-            <div v-if="expandedMonths.has(month.month)" class="border-t border-gray-100 bg-gray-50 p-4">
+            <div v-if="expandedMonths.has(month.month) || expandAll" class="border-t border-gray-100 bg-gray-50 p-4">
               <div class="overflow-x-auto">
                 <table class="min-w-full">
                   <thead>

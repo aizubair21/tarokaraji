@@ -78,11 +78,11 @@ onUnmounted(() => {
   <div class="min-h-screen flex">
     
     <!-- Mobile backdrop -->
-    <div v-if="isAsideOpen" @click="isAsideOpen = false" class="fixed inset-0 bg-black bg-opacity-50 z-40 md:hidden"></div>
+    <div v-if="isAsideOpen" @click="isAsideOpen = false" class="print:hidden fixed inset-0 bg-black bg-opacity-50 z-40 md:hidden"></div>
 
     <!-- Aside (Sidebar) - Sticky on desktop -->
     <aside 
-      class="w-64 bg-white shadow-2xl fixed md:sticky top-0 inset-y-0 left-0 z-50 transform -translate-x-full transition-transform duration-300 ease-in-out md:translate-x-0 md:block h-screen overflow-y-auto"
+      class="print:hidden w-64 bg-white shadow-2xl fixed md:sticky top-0 inset-y-0 left-0 z-50 transform -translate-x-full transition-transform duration-300 ease-in-out md:translate-x-0 md:block h-screen overflow-y-auto"
       :class="{ 'translate-x-0': isAsideOpen }">
       <div class="p-4">
         <div class="text-center mb-6">
@@ -127,7 +127,7 @@ onUnmounted(() => {
     <!-- Main content area -->
     <div class="flex-1 flex flex-col min-h-screen overflow-hidden">
       <!-- Header - Sticky on desktop -->
-      <header class="border-b shadow p-4 flex justify-between items-center bg-white bg-opacity-90 backdrop-blur-md sticky top-0 z-40">
+      <header class="print:hidden border-b shadow p-4 flex justify-between items-center bg-white bg-opacity-90 backdrop-blur-md sticky top-0 z-40">
         <div class="flex items-center">
           <button @click="isAsideOpen = !isAsideOpen" class="md:hidden mr-2 text-gray-600 hover:text-gray-800">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -158,6 +158,10 @@ onUnmounted(() => {
             <p>{{ error }}</p>
           </div> -->
 
+          <div class="hidden print:block">
+            <h1 class="text-3xl pb-6 text-center"> তারকারাজী বিজনেস </h1>
+          </div>
+
           <slot></slot>
         </div>
       </main>
@@ -165,7 +169,7 @@ onUnmounted(() => {
   </div>
 
   <!-- Bottom Tab Bar for Mobile -->
-  <div v-if="isMobile" class="fixed bottom-0 left-0 right-0 bg-white bg-opacity-95 backdrop-blur-md shadow-2xl border-t border-gray-200 z-50">
+  <div v-if="isMobile" class="print:hidden fixed bottom-0 left-0 right-0 bg-white bg-opacity-95 backdrop-blur-md shadow-2xl border-t border-gray-200 z-50">
     <div class="flex justify-around items-center">
       <button
         v-for="item in bottomTabItems"
