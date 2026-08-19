@@ -42,7 +42,7 @@ export default defineNuxtConfig({
         lang: 'en',
       },
       link: [
-        { rel: 'icon', type: 'image/x-icon', href: '/logo.jpg' },
+        { rel: 'icon', type: 'image/x-icon', href: '/tarokaraji-business-logo.svg' },
       ],
     },
   },
