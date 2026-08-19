@@ -6,48 +6,37 @@ const route = useRoute()
 // Data
 const users = ref([])
 const deposits = ref([])
-const isLoading = ref(true)
+const isLoading = ref(false)
 const searchQuery = ref('')
 const selectedSession = ref(auth.currentSession || '')
 const selectedMonth = ref('all') // 'all' or specific month
-
-// INDEX from dashboard
-const INDEX = {
-  user_id: 0,
-  session: 1,
-  amount: 2,
-  type: 3,
-  month: 4,
-  method: 5,
-  pay_to: 6,
-  send_from: 7,
-  date: 10
-}
+const sessions = ref([]);
 
 // Fetch data
 const fetchData = async () => {
   try {
-    isLoading.value = true
-    users.value = await $fetch('/api/sheets/users')
-    deposits.value = await $fetch('/api/sheets/deposits')
+    auth.isLoading = true;
+    users.value = useUsersStore().user;
+    deposits.value = useDepositsStore().all
+    sessions.value = useSessionsStore().session;
   } catch (error) {
     console.error('Error fetching data:', error)
   } finally {
-    isLoading.value = false
+    auth.isLoading = false
   }
 }
 
 // Get amount safely
-const getAmount = (deposit) => parseFloat(deposit[INDEX.amount]) || 0
+const getAmount = (deposit) => parseFloat(deposit.amount) || 0
 
 // Computed: Available sessions and months
-const sessions = computed(() => {
-  const unique = [...new Set(deposits.value.map(d => d[INDEX.session]).filter(Boolean))]
-  return Array.from(unique).sort().reverse()
-})
+// const sessions = computed(() => {
+//   const unique = [...new Set(deposits.value.map(d => d.session).filter(Boolean))]
+//   return Array.from(unique).sort().reverse()
+// })
 
 const months = computed(() => {
-  const unique = [...new Set(deposits.value.map(d => d[INDEX.month]).filter(Boolean))]
+  const unique = [...new Set(deposits.value.map(d => d.month).filter(Boolean))]
   return ['all', ...Array.from(unique).sort()]
 })
 
@@ -56,23 +45,24 @@ const filteredDeposits = computed(() => {
   let filtered = deposits.value
 
   if (selectedSession.value) {
-    filtered = filtered.filter(d => d[INDEX.session] === selectedSession.value)
+    filtered = filtered.filter(d => d.session === selectedSession.value)
   }
 
   if (selectedMonth.value !== 'all') {
-    filtered = filtered.filter(d => d[INDEX.month] === selectedMonth.value)
+    filtered = filtered.filter(d => d.month === selectedMonth.value)
   }
 
   return filtered
 })
+
 
 // Computed: Contributions by user
 const contributions = computed(() => {
   const contrib = {}
 
   filteredDeposits.value.forEach(deposit => {
-    const userId = deposit[INDEX.user_id]
-    if (!userId) return
+    const userId = deposit.user_id;
+    if (!userId) return 
 
     if (!contrib[userId]) {
       contrib[userId] = {
@@ -87,18 +77,17 @@ const contributions = computed(() => {
     contrib[userId].total += amt
     contrib[userId].count += 1
   })
-
+  // console.log(Object.values(contrib));
   // Join with users
   return Object.values(contrib)
     .map(c => {
-      const user = users.value.find(u => u[16] == c.userId) // Assuming users[16] = ID
+      const user = users.value.find(u => u.user_id == parseInt(c.userId));
       return {
         ...c,
-        name: user ? user[1] || user[2] || 'Unknown' : 'Unknown', // name in col 1 or 2
+        name: user ? user.name_bangla : 'Unknown',
         percentage: 0 // set later
       }
     })
-    .filter(c => c.name !== 'Unknown')
     .sort((a, b) => b.total - a.total)
 })
 
@@ -120,7 +109,7 @@ const filteredContributions = computed(() => {
   if (!searchQuery.value) return contributionsWithPct.value
   const q = searchQuery.value.toLowerCase()
   return contributionsWithPct.value.filter(c => 
-    c.name.toLowerCase().includes(q)
+    c.name_bangla.toLowerCase().includes(q)
   )
 })
 
@@ -153,6 +142,8 @@ onMounted(() => {
         </p>
       </div>
 
+
+
       <!-- Filters -->
       <div v-if="!isLoading" class="bg-white/80 backdrop-blur-md rounded-3xl p-6 mb-8 shadow-2xl border border-white/50">
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 items-end">
@@ -164,8 +155,8 @@ onMounted(() => {
               @change="fetchData"
             >
               <option value="">সকল সেশন</option>
-              <option v-for="session in sessions" :key="session" :value="session">
-                {{ session }}
+              <option v-for="session in sessions" :key="session.sessionName" :value="session.sessionName">
+                {{ session.sessionName }}
               </option>
             </select>
           </div>
@@ -193,6 +184,9 @@ onMounted(() => {
           </div>
         </div>
       </div>
+
+      <!-- <pre> {{filteredDeposits.length}} </pre> -->
+      <!-- <pre> {{contributions}} </pre> -->
 
       <!-- Stats Cards -->
       <div v-if="!isLoading && filteredContributions.length > 0" class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
