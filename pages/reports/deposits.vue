@@ -1,8 +1,14 @@
 <script setup lang="ts">
-const usersStore = useUsersStore()
-const sessionsStore = useSessionsStore()
-const transactionsStore = useTransactionsStore()
+const usersStore = ref([]);
+const sessionsStore = ref([]);
+const transactionsStore = ref([]);
 
+  onMounted(()=>{
+  userStore = useUsersStore();
+  sessionsStore = useSessionsStore();
+  transactionsStore = useDepositsStore();
+})
+  
 const selectedUser = ref('')
 const selectedSession = ref('')
 
@@ -26,15 +32,13 @@ const report = computed(() => {
         Deposit Report
       </h1>
 
-      <p class="text-sm text-gray-500">
-        View paid, due and expected deposits
-      </p>
+      <button class="print:hidden" onClick="window.print()" > <i class='fas fa print' </ button>
     </div>
 
 
     <!-- Filters -->
 
-    <div class="grid gap-4 md:grid-cols-2">
+    <div class="print:hidden grid gap-4 md:grid-cols-2">
 
       <div>
         <label class="mb-1 block text-sm font-medium">
@@ -110,7 +114,7 @@ const report = computed(() => {
 
     <!-- Deposit breakdown -->
 
-    <div class="mt-6 grid gap-4 md:grid-cols-3">
+    <!-- <div class="hidden mt-6 grid gap-4 md:grid-cols-3">
 
       <DepositCard
         title="Monthly Deposit"
@@ -127,7 +131,7 @@ const report = computed(() => {
         :data="report.cost"
       />
 
-    </div>
+    </div> -->
 
 
     <!-- Details -->
