@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { buildDepositReport } from "../../utils/reports/depositReport";
 const usersStore = ref([]);
 const sessionsStore = ref([]);
 const transactionsStore = ref([]);
