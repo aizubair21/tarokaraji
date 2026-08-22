@@ -25,14 +25,14 @@ const report = computed(() => {
 </script>
 
 <template>
-  <div class="p-6">
+  <div class="p-6 flex items-center justify-between">
 
     <div class="mb-6">
       <h1 class="text-2xl font-bold">
         Deposit Report
       </h1>
 
-      <button class="print:hidden" onClick="window.print()" > <i class='fas fa print' </ button>
+      <button class="print:hidden border-0 px-4 py-1" onclick="window.print()" > <i class='fas fa print'></i> </ button>
     </div>
 
 
