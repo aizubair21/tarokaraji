@@ -1,12 +1,12 @@
 <script setup lang="ts">
-const usersStore = ref(useUsersStore();
-const sessionsStore = ref(useSesssionsStore());
-const transactionsStore = ref(useDepositsStore());
+const usersStore = ref([]);
+const sessionsStore = ref([]);
+const transactionsStore = ref([]);
 
   onMounted(()=>{
-  //userStore = useUsersStore();
-  //sessionsStore = useSessionsStore();
-  //transactionsStore = useDepositsStore();
+      userStore = useUsersStore();
+      sessionsStore = useSessionsStore();
+      transactionsStore = useDepositsStore();
 })
   
 const selectedUser = ref('')
