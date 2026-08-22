@@ -13,15 +13,14 @@ const reportCategories = ref([
     route: '/reports/summary',
     features: ['সেশন ভিত্তিক ফিল্টার', 'চলতি মাস/পূর্ণ বছর হিসাব', 'এক্সপোর্ট সুবিধা']
   },
-  // {
-  //   id: 'paid-months',
-  //   name: 'পরিশোধিত মাস রিপোর্ট',
-  //   description: 'ব্যবহারকারীভিত্তিক পরিশোধিত মাসের বিস্তারিত তালিকা',
-  //   icon: 'fas fa-check-circle',
-  //   color: 'from-green-500 to-emerald-500',
-  //   route: '/reports/paid-months',
-  //   features: ['মাস ভিত্তিক ফিল্টার', 'সেশন নির্বাচন', 'পিডিএফ ডাউনলোড']
-  // },
+   {
+     id: 'paid-months',
+     name: 'পরিশোধিত মাস রিপোর্ট',
+     description: 'ব্যবহারকারীভিত্তিক পরিশোধিত মাসের বিস্তারিত তালিকা',
+     icon: 'fas fa-check-circle',
+     color: 'from-green-500 to-emerald-500',
+     route: '/reports/deposits',
+   },
   // {
   //   id: 'unpaid-months',
   //   name: 'অপরিশোধিত মাস রিপোর্ট',
@@ -64,7 +63,7 @@ const reportCategories = ref([
     description: 'সর্বোচ্চ জমাদানকারী ব্যবহারকারীদের তালিকা ও পুরস্কার ব্যবস্থা',
     icon: 'fas fa-trophy',
     color: 'from-yellow-500 to-amber-500',
-    route: '/reports/top-contributors',
+    route: '/deposits/contributions',
     features: ['র‍্যাঙ্কিং', 'সার্টিফিকেট জেনারেট', 'পুরস্কার ঘোষণা']
   },
   {
