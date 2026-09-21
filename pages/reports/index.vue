@@ -13,14 +13,14 @@ const reportCategories = ref([
     route: '/reports/summary',
     features: ['সেশন ভিত্তিক ফিল্টার', 'চলতি মাস/পূর্ণ বছর হিসাব', 'এক্সপোর্ট সুবিধা']
   },
-   {
-     id: 'paid-months',
-     name: 'পরিশোধিত মাস রিপোর্ট',
-     description: 'ব্যবহারকারীভিত্তিক পরিশোধিত মাসের বিস্তারিত তালিকা',
-     icon: 'fas fa-check-circle',
-     color: 'from-green-500 to-emerald-500',
-     route: '/reports/deposits',
-   },
+   // {
+   //   id: 'paid-months',
+   //   name: 'পরিশোধিত মাস রিপোর্ট',
+   //   description: 'ব্যবহারকারীভিত্তিক পরিশোধিত মাসের বিস্তারিত তালিকা',
+   //   icon: 'fas fa-check-circle',
+   //   color: 'from-green-500 to-emerald-500',
+   //   route: '/reports/deposits',
+   // },
   // {
   //   id: 'unpaid-months',
   //   name: 'অপরিশোধিত মাস রিপোর্ট',

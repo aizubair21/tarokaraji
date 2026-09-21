@@ -16,4 +16,6 @@ export const useDepositsStore = defineStore('deposits', () => {
     return {
         fetchDeposits, all,
     };
+}, {
+    persist:true,
 });

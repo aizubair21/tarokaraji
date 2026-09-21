@@ -15,10 +15,6 @@ const selectedSession = ref('')
 
 const report = computed(() => {
   return buildDepositReport({
-    users: usersStore.user,
-    sessions: sessionsStore.session,
-    transactions: transactionsStore.all,
-
     userId: selectedUser.value || null,
     session: selectedSession.value || null,
   })

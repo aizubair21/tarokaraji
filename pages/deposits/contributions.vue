@@ -9,6 +9,7 @@ const deposits = ref([])
 const isLoading = ref(false)
 const searchQuery = ref('')
 const selectedSession = ref(auth.currentSession || '')
+const sessionTotalAmount = ref(0)
 const selectedMonth = ref('all') // 'all' or specific month
 const sessions = ref([]);
 
@@ -19,6 +20,7 @@ const fetchData = async () => {
     users.value = useUsersStore().user;
     deposits.value = useDepositsStore().all
     sessions.value = useSessionsStore().session;
+
   } catch (error) {
     console.error('Error fetching data:', error)
   } finally {
@@ -27,7 +29,7 @@ const fetchData = async () => {
 }
 
 // Get amount safely
-const getAmount = (deposit) => parseFloat(deposit.amount) || 0
+const getAmount = (deposit) => parseFloat(deposit.amount) || 0;
 
 // Computed: Available sessions and months
 // const sessions = computed(() => {
@@ -35,9 +37,26 @@ const getAmount = (deposit) => parseFloat(deposit.amount) || 0
 //   return Array.from(unique).sort().reverse()
 // })
 
-const months = computed(() => {
-  const unique = [...new Set(deposits.value.map(d => d.month).filter(Boolean))]
-  return ['all', ...Array.from(unique).sort()]
+// const months = computed(() => {
+//   const unique = [...new Set(deposits.value.map(d => d.month).filter(Boolean))]
+//   return ['all', ...Array.from(unique).sort()]
+
+const filteredSessionsTotalAmount = computed(() => {
+  let filterSession = sessions.value;
+  let sum = 0;
+
+  if(selectedSession.value){
+    filterSession = sessions.value.filter(s => s.sessionName === selectedSession.value);
+  }
+
+  Object.values(filterSession).forEach(s => {
+    console.log(s.totalDeposit);
+    sum += parseFloat(s.totalDeposit);
+  })
+  console.log(filterSession);
+  return sum;
+  sum = 0;
+  filterSession = 0;
 })
 
 // Computed: Filtered deposits
@@ -77,7 +96,7 @@ const contributions = computed(() => {
     contrib[userId].total += amt
     contrib[userId].count += 1
   })
-  // console.log(Object.values(contrib));
+
   // Join with users
   return Object.values(contrib)
     .map(c => {
@@ -113,13 +132,6 @@ const filteredContributions = computed(() => {
   )
 })
 
-// Stats
-const topContributor = computed(() => filteredContributions.value[0])
-const avgPerMember = computed(() => {
-  const count = filteredContributions.value.length
-  return count > 0 ? (totalContributions.value / count).toFixed(0) : 0
-})
-
 // Load on mount
 onMounted(() => {
   if (!auth.isAuthenticated) {
@@ -133,95 +145,72 @@ onMounted(() => {
   <div class="min-h-screen py-8">
     <div class="max-w-7xl mx-auto">
 
-      <!-- Header -->
-      <div class="text-center mb-12 print:mb-3">
-        <h1 class="text-4xl md:text-5xl font-bold text-gray-700 mb-4">
-          অবদানকারীদের তালিকা
-        </h1>
-        <p class="text-xl text-gray-600 max-w-2xl mx-auto">
-          সকল সদস্যের আমানতের হার।
-        </p>
-      </div>
+      <!-- <pre> {{filteredSessions}} </pre> -->
 
-
-
-      <!-- Filters -->
-      <div v-if="!isLoading" class=" p-6 print:p-0 mb-8 print:mb-0">
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-center justify-center">
-          <div class="mx-w-md">
-            <!-- <label class="block text-sm font-medium text-gray-700 mb-2">সেশন</label> -->
-            <select 
-              v-model="selectedSession" 
-              class="w-full mx-w-md p-3 bg-white transition-all"
-              @change="fetchData"
-            >
-              <option value="">সকল সেশন</option>
-              <option v-for="session in sessions" :key="session.sessionName" :value="session.sessionName">
-                {{ session.sessionName }}
-              </option>
-            </select>
-          </div>
-          <div class="mx-w-md">
-            <!-- <label class="block text-sm font-medium text-gray-700 mb-2">মাস</label> -->
-            <select 
-              v-model="selectedMonth" 
-              class="w-full mx-w-md p-3 bg-white transition-all"
-              @change="fetchData"
-            >
-              <option value="all">সকল মাস</option>
-              <option v-for="month in data.months" :key="month" :value="month">
-                {{ month }}
-              </option>
-            </select>
-          </div>
-          <!-- <div class="print:hidden">
-            <input
-              v-model="searchQuery"
-              type="text"
-              placeholder="সদস্যের নাম লিখুন..."
-              class="w-full p-3 border border-gray-300 rounded-2xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-            />
-          </div> -->
-        </div>
-      </div>
-
-      <!-- <pre> {{filteredDeposits.length}} </pre> -->
-      <!-- <pre> {{contributions}} </pre> -->
-
-      <!-- Stats Cards -->
-      <div v-if="!isLoading && filteredContributions.length > 0" class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 print:mb-0">
-        <div class="bg-gradient-to-br from-emerald-400 to-emerald-600 rounded-3xl p-8 text-white shadow-2xl hover:shadow-3xl transition-all print:bg-white print:border-0 print:text-gray-900 print:shadow-sm">
-          <div class="flex items-center justify-between">
-            <div>
-              <p class="text-sm opacity-90">মোট অবদান</p>
-              <p class="text-4xl font-bold mt-2">৳{{ totalContributions.toLocaleString() }}</p>
+      <div class="flex items-center justify-between p-2">
+        <!-- Header -->
+        <div class="text-center mb-12 print:mb-3">
+          <h1 class="text-2xl md:text-3xl font-bold text-gray-700">
+            সদস্যদের অবদানের তালিকা
+          </h1>
+          <p class="text-xl text-gray-600 max-w-2xl mx-auto">
+            সেশন অনুযায়ী টার্গেট, মোট জমা ও বকেয়ার বিবরণ।  
+          </p>
+          
+          <!-- Filters -->
+          <div v-if="!isLoading" class="print:p-0 mb-8 print:mb-0 mx-w-sm pt-2">
+            <div class="flex gap-6 items-center justify-center">
+              <div class="mx-w-md">
+                <!-- <label class="block text-sm font-medium text-gray-700 mb-2">সেশন</label> -->
+                <select 
+                  v-model="selectedSession" 
+                  class=" px-4 py-2 bg-white transition-all"
+                  @change="fetchData"
+                >
+                  <option value="">সকল সেশন</option>
+                  <option v-for="session in sessions" :key="session.sessionName" :value="session.sessionName">
+                    {{ session.sessionName }}
+                  </option>
+                </select>
+              </div>
+              <div class="mx-w-md">
+                <!-- <label class="block text-sm font-medium text-gray-700 mb-2">মাস</label> -->
+                <select 
+                  v-model="selectedMonth" 
+                  class=" px-4 py-2 bg-white transition-all"
+                  @change="fetchData"
+                >
+                  <option value="all">সকল মাস</option>
+                  <option v-for="month in data.months" :key="month" :value="month">
+                    {{ month }}
+                  </option>
+                </select>
+              </div>
+             
             </div>
-            <i class="fas fa-coins text-5xl opacity-75"></i>
           </div>
         </div>
-        <div class="bg-gradient-to-br from-blue-500 to-blue-700 rounded-3xl p-8 text-white shadow-2xl hover:shadow-3xl transition-all print:bg-white print:border-0 print:text-gray-900 print:shadow-sm">
-          <div class="flex items-center justify-between">
-            <div>
-              <p class="text-sm opacity-90">গড় প্রতি সদস্য</p>
-              <p class="text-4xl font-bold mt-2">৳{{ avgPerMember.toLocaleString() }}</p>
+
+        <div>
+
+          <!-- Stats Cards -->
+          <div v-if="!isLoading && filteredContributions.length > 0" class="mb-8 print:mb-0">
+            <div class="bg-gradient-to-br from-emerald-400 to-emerald-600 rounded-3xl p-8 text-white shadow-2xl hover:shadow-3xl transition-all print:bg-white print:border-0 print:text-gray-900 print:shadow-sm">
+              <div class="flex items-center justify-between">
+                <div>
+                  <p class="text-sm opacity-90">মোট অবদান</p>
+                  <p class="text-4xl font-bold mt-2">৳{{ totalContributions.toLocaleString() }}</p>
+                </div>
+              </div>
             </div>
-            <i class="fas fa-chart-bar text-5xl opacity-75"></i>
           </div>
         </div>
-        <!-- <div v-if="topContributor" class="bg-gradient-to-br from-purple-500 to-purple-700 rounded-3xl p-8 text-white shadow-2xl hover:shadow-3xl transition-all">
-          <div class="flex items-center justify-between">
-            <div>
-              <p class="text-sm opacity-90">শীর্ষ অবদানকারী</p>
-              <p class="text-2xl font-bold mt-1">{{ topContributor.name }}</p>
-              <p class="text-3xl font-bold">৳{{ topContributor.total.toLocaleString() }}</p>
-            </div>
-            <i class="fas fa-trophy text-5xl opacity-75"></i>
-          </div>
-        </div> -->
+        
       </div>
+
 
       <!-- Table -->
-      <div class="bg-white/80 backdrop-blur-md rounded-3xl p-6 print:py-2 shadow-2xl print:shadow-0 border print:border-0 border-white/50 overflow-hidden">
+      <div class="bg-white/80 backdrop-blur-md rounded-3xl print:py-2 shadow-2xl print:shadow-0 border print:border-0 border-white/50 overflow-hidden">
         <div v-if="isLoading" class="flex justify-center items-center py-20">
           <div class="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-blue-500"></div>
           <p class="ml-4 text-gray-500">লোড হচ্ছে...</p>
@@ -230,7 +219,7 @@ onMounted(() => {
         <div v-else-if="filteredContributions.length === 0" class="text-center py-20">
           <i class="fas fa-inbox text-6xl text-gray-300 mb-6"></i>
           <p class="text-2xl text-gray-500 mb-2">কোনো অবদান পাওয়া যায়নি</p>
-          <p class="text-gray-400">ফিল্টার পরিবর্তন করুন অথবা সার্চ করুন</p>
+          <p class="text-gray-400">ফিল্টার পরিবর্তন করুন</p>
         </div>
 
         <div v-else class="overflow-x-auto">
@@ -240,9 +229,9 @@ onMounted(() => {
                 <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider rounded-tl-2xl">র‍্যাঙ্ক</th>
                 <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">নাম</th>
                 <th class="px-6 py-4 text-right text-xs font-bold text-gray-700 uppercase tracking-wider">মোট অবদান</th>
-                <th class="px-6 py-4 text-right text-xs font-bold text-gray-700 uppercase tracking-wider">লেনদেন</th>
-                <th class="px-6 py-4 text-right text-xs font-bold text-gray-700 uppercase tracking-wider">গড়</th>
-                <th class="px-6 py-4 text-right text-xs font-bold text-gray-700 uppercase tracking-wider rounded-tr-2xl">মোটের %</th>
+                <th class="px-6 py-4 text-right text-xs font-bold text-gray-700 uppercase tracking-wider">টার্গেট</th>
+                <th class="px-6 py-4 text-right text-xs font-bold text-gray-700 uppercase tracking-wider"> বকেয়া  </th>
+                <th class="px-6 py-4 text-right text-xs font-bold text-gray-700 uppercase tracking-wider rounded-tr-2xl"> শতাংশ </th>
               </tr>
             </thead>
             <tbody class="divide-y divide-gray-200">
@@ -251,8 +240,8 @@ onMounted(() => {
                 :key="contrib.userId"
                 class="hover:bg-gray-50 transition-colors group"
               >
-                <td class="px-6 py-5">
-                  <div class="flex items-center justify-center w-10 h-10 rounded-full font-bold 
+                <td class="px-4 py-5">
+                  <div class="flex items-center justify-center h-10 rounded-full font-bold 
                     {{ index === 0 ? 'bg-gradient-to-r from-yellow-400 to-orange-500' : 
                        index === 1 ? 'bg-gradient-to-r from-gray-400 to-gray-600' : 
                        index === 2 ? 'bg-gradient-to-r from-orange-400 to-red-500' : 
@@ -261,26 +250,35 @@ onMounted(() => {
                   </div>
                 </td>
                 <td class="px-6 py-5 font-medium text-gray-900 group-hover:text-blue-600">
-                  {{ contrib.name }}
+                  {{ contrib.name }} ( {{ contrib.userId }} )
                 </td>
                 <td class="px-6 py-5 text-right">
                   <div class="font-bold text-2xl text-green-600">
                     ৳{{ contrib.total.toLocaleString() }}
                   </div>
                 </td>
-                <td class="px-6 py-5 text-right text-sm text-gray-700">
+               <!--  <td class="px-6 py-5 text-right text-sm text-gray-700">
                   {{ contrib.count }} টি
                 </td>
                 <td class="px-6 py-5 text-right">
                   <div class="font-semibold text-lg text-blue-600">
                     ৳{{ contrib.avg.toLocaleString() }}
                   </div>
+                </td> -->
+                <td class="text-right px-6 py-5 text-2xl text-indigo-600">
+                  ৳{{ filteredSessionsTotalAmount }}
                 </td>
+
+                <td class="text-right px-6 py-5 text-2xl text-red-600">
+                  ৳{{ filteredSessionsTotalAmount - contrib.total }}
+                </td>
+
                 <td class="px-6 py-5 text-right text-sm font-semibold text-purple-600">
                   {{ contrib.percentage }}%
                 </td>
               </tr>
             </tbody>
+
           </table>
         </div>
 

@@ -1,7 +1,8 @@
-<script setup>
+<script setup lang="ts">
 const auth = useAuthStore()
 const isLoading = ref(true)
 const error = ref(null)
+const sessionsToProcess = ref([])
 
 // Data stores
 const users = ref([])
@@ -28,111 +29,234 @@ const allMonths = [
   'July', 'August', 'September', 'October', 'November', 'December'
 ]
 
-// User deposit summary - simplified version
 const userDepositSummary = computed(() => {
-  if (!users.value.length || !deposits.value.length) return []
-  
-  // Filter deposits by selected session
-  let filteredDeposits = deposits.value
-  if (selectedSession.value !== 'all') {
-    filteredDeposits = deposits.value.filter(d => d.session === selectedSession.value)
-  }
-  
-  // Create a map of paid months per user
-  const userPaidMonthsMap = new Map()
-  
-  // Track paid months for each user
+  if (!users.value.length) return []
+
+  // --------------------------------------------------
+  // 1. Determine sessions to process
+  // --------------------------------------------------
+  const sessionsToProcess = selectedSession.value !== 'all'
+    ? sessions.value.filter(
+        s => s.sessionName === selectedSession.value
+      )
+    : sessions.value
+
+  if (!sessionsToProcess.length) return []
+
+  // --------------------------------------------------
+  // 2. Filter deposits by selected session
+  // --------------------------------------------------
+  const filteredDeposits = selectedSession.value === 'all'
+    ? deposits.value
+    : deposits.value.filter(
+        d => d.session === selectedSession.value
+      )
+
+  // --------------------------------------------------
+  // 3. Group deposits by User + Session + Month
+  // --------------------------------------------------
+  const userDepositMap = new Map()
+
   filteredDeposits.forEach(deposit => {
     const userId = deposit.user_id
-    const month = deposit.month
     const session = deposit.session
-    
-    if (!userPaidMonthsMap.has(userId)) {
-      userPaidMonthsMap.set(userId, {
-        userId,
-        userName: '',
-        userEmail: '',
+    const month = deposit.month
+
+    if (!userDepositMap.has(userId)) {
+      userDepositMap.set(userId, {
+        totalDeposits: 0,
         paidMonths: new Set(),
-        sessions: new Set(),
-        totalDeposits: 0
+        sessions: new Set()
       })
     }
-    
-    const userData = userPaidMonthsMap.get(userId)
+
+    const userData = userDepositMap.get(userId)
+
     const monthKey = `${session}-${month}`
+
     userData.paidMonths.add(monthKey)
     userData.sessions.add(session)
-    userData.totalDeposits += parseFloat(deposit.amount) || 0
+
+    userData.totalDeposits += Number(deposit.amount) || 0
   })
-  
-  // Calculate summary for each user
+
+  // --------------------------------------------------
+  // 4. Build user summaries
+  // --------------------------------------------------
   const result = []
-  
+
   users.value.forEach(user => {
     const userId = user.user_id
-    const userData = userPaidMonthsMap.get(userId) || {
-      userId,
-      userName: user.name_bangla || user.name_english || 'Unknown',
-      userEmail: user.email || 'N/A',
+
+    const userData = userDepositMap.get(userId) || {
+      totalDeposits: 0,
       paidMonths: new Set(),
-      sessions: new Set(),
-      totalDeposits: 0
+      sessions: new Set()
     }
-    
-    // Determine which sessions to consider
-    const sessionsToProcess = selectedSession.value !== 'all'
-      ? [selectedSession.value]
-      : (sessions.value.length ? sessions.value.map(s => s.session_name) : ['2024-25'])
-    
-    // Calculate paid and unpaid months
+
+    // Financial totals
+    let totalTargetAmount = 0
+    let totalPaidAmount = 0
+    let totalDueAmount = 0
+
+    // Month totals
     let totalPaidMonths = 0
     let totalUnpaidMonths = 0
+
     const paidMonthsDetails = []
     const unpaidMonthsDetails = []
-    
+
+    // ------------------------------------------------
+    // Process every selected session
+    // ------------------------------------------------
     sessionsToProcess.forEach(session => {
+      const sessionName = session.sessionName
+
+      const monthlyAmount =
+        Number(session.monthlyDeposit) || 0
+
+      const yearlyAmount =
+        Number(session.yearlyDeposit) || 0
+
+      const costAmount =
+        Number(session.cost) || 0
+
+      // ----------------------------------------------
+      // Monthly target
+      // ----------------------------------------------
+      const monthlyTarget =
+        monthlyAmount * allMonths.length
+
+      totalTargetAmount += monthlyTarget
+
+      // ----------------------------------------------
+      // Monthly payments
+      // ----------------------------------------------
       allMonths.forEach(month => {
-        const monthKey = `${session}-${month}`
+        const monthKey = `${sessionName}-${month}`
+
         if (userData.paidMonths.has(monthKey)) {
           totalPaidMonths++
-          paidMonthsDetails.push({ session, month })
+
+          totalPaidAmount += monthlyAmount
+
+          paidMonthsDetails.push({
+            session: sessionName,
+            month,
+            amount: monthlyAmount
+          })
         } else {
           totalUnpaidMonths++
-          unpaidMonthsDetails.push({ session, month })
+
+          totalDueAmount += monthlyAmount
+
+          unpaidMonthsDetails.push({
+            session: sessionName,
+            month,
+            amount: monthlyAmount
+          })
         }
       })
+
+      // ----------------------------------------------
+      // Yearly deposit
+      // ----------------------------------------------
+      totalTargetAmount += yearlyAmount
+
+      // TODO:
+      // Yearly payment should be detected separately
+      // from monthly payments.
+      //
+      // For now this is NOT added to paid amount.
+      // It remains part of the due amount.
+      // totalDueAmount += yearlyAmount
+
+      // ----------------------------------------------
+      // Yearly cost / maintenance
+      // ----------------------------------------------
+      totalTargetAmount += costAmount
+
+      // TODO:
+      // Same as yearly deposit:
+      // detect whether this cost was actually paid.
+      // totalDueAmount += costAmount
     })
-    
-    const totalMonths = totalPaidMonths + totalUnpaidMonths
-    const paymentRate = totalMonths > 0 ? (totalPaidMonths / totalMonths) * 100 : 0
-    
-    // Determine user status
+
+    // --------------------------------------------------
+    // 5. Correct due calculation
+    // --------------------------------------------------
+    //
+    // If yearly/cost payments are later detected,
+    // this formula will automatically remain correct.
+    //
+    totalDueAmount =
+      Math.max(totalTargetAmount - totalPaidAmount, 0)
+
+    // --------------------------------------------------
+    // 6. Payment rate
+    // --------------------------------------------------
+    const paymentRate =
+      totalTargetAmount > 0
+        ? (totalPaidAmount / totalTargetAmount) * 100
+        : 0
+
+    // --------------------------------------------------
+    // 7. Status
+    // --------------------------------------------------
     let status = 'no_payment'
-    if (totalPaidMonths === totalMonths && totalMonths > 0) {
+
+    if (totalTargetAmount > 0 && totalDueAmount === 0) {
       status = 'fully_paid'
-    } else if (totalPaidMonths > 0) {
+    } else if (totalPaidAmount > 0) {
       status = 'partially_paid'
     }
-    
+
+    // --------------------------------------------------
+    // 8. Final user result
+    // --------------------------------------------------
     result.push({
-      ...userData,
-      userName: user.name_bangla || user.name_english || 'Unknown',
-      userEmail: user.email || 'N/A',
+      userId,
+
+      userName:
+        user.name_bangla ||
+        user.name_english ||
+        'Unknown',
+
+      userEmail:
+        user.email || 'N/A',
+
       userRole: user.role,
+
+      // Months
       totalPaidMonths,
       totalUnpaidMonths,
-      totalMonths,
-      paymentRate,
-      status,
+      totalMonths:
+        totalPaidMonths + totalUnpaidMonths,
+
       paidMonthsDetails,
       unpaidMonthsDetails,
-      totalDeposits: userData.totalDeposits
+
+      // Financial summary
+      totalTargetAmount,
+      totalPaidAmount,
+      totalDueAmount,
+
+      // Existing information
+      totalDeposits: userData.totalDeposits,
+
+      paymentRate,
+      status
     })
   })
-  
-  // Sort by payment rate (highest first)
-  return result.sort((a, b) => b.paymentRate - a.paymentRate)
+
+  // --------------------------------------------------
+  // 9. Sort by payment rate
+  // --------------------------------------------------
+  return result.sort(
+    (a, b) => b.paymentRate - a.paymentRate
+  )
 })
+
 
 // Update report statistics
 const updateReportStats = () => {
@@ -207,6 +331,136 @@ const printReport = () => {
   window.print()
 }
 
+
+
+const expandedUser = ref<string | null>(null)
+
+const toggleDetails = (userId: string) => {
+  expandedUser.value =
+    expandedUser.value === userId
+      ? null
+      : userId
+}
+
+
+
+const reportTotals = computed(() => {
+
+  const summary = userDepositSummary.value
+
+  const target = summary.reduce(
+    (sum, user) =>
+      sum + Number(user.totalTargetAmount || 0),
+    0
+  )
+
+  const paid = summary.reduce(
+    (sum, user) =>
+      sum + Number(user.totalPaidAmount || 0),
+    0
+  )
+
+  const due = summary.reduce(
+    (sum, user) =>
+      sum + Number(user.totalDueAmount || 0),
+    0
+  )
+
+  const paidMonths = summary.reduce(
+    (sum, user) =>
+      sum + Number(user.totalPaidMonths || 0),
+    0
+  )
+
+  const dueMonths = summary.reduce(
+    (sum, user) =>
+      sum + Number(user.totalUnpaidMonths || 0),
+    0
+  )
+
+  return {
+    target,
+    paid,
+    due,
+    paidMonths,
+    dueMonths,
+    rate: target > 0
+      ? (paid / target) * 100
+      : 0
+  }
+})
+
+
+// ======================================================
+// Money formatter
+// ======================================================
+
+const formatMoney = (amount: number) => {
+
+  return new Intl.NumberFormat('en-BD', {
+    style: 'currency',
+    currency: 'BDT',
+    maximumFractionDigits: 0
+  }).format(Number(amount) || 0)
+
+}
+
+
+// ======================================================
+// Status
+// ======================================================
+
+const statusLabel = (status: string) => {
+
+  const labels: Record<string, string> = {
+    fully_paid: 'Fully Paid',
+    partially_paid: 'Partially Paid',
+    no_payment: 'No Payment'
+  }
+
+  return labels[status] || status
+
+}
+
+
+const statusClass = (status: string) => {
+
+  const classes: Record<string, string> = {
+
+    fully_paid:
+      'bg-green-100 text-green-700',
+
+    partially_paid:
+      'bg-yellow-100 text-yellow-700',
+
+    no_payment:
+      'bg-red-100 text-red-700'
+
+  }
+
+  return classes[status] || 'bg-gray-100 text-gray-600'
+
+}
+
+
+const progressColor = (rate: number) => {
+
+  if (rate >= 100)
+    return 'bg-green-500'
+
+  if (rate >= 70)
+    return 'bg-blue-500'
+
+  if (rate >= 40)
+    return 'bg-yellow-500'
+
+  return 'bg-red-500'
+
+}
+
+
+
+
 watch(selectedSession, () => {
   updateReportStats()
 })
@@ -269,6 +523,7 @@ onMounted(() => {
         </div>
       </div>
     </div>
+
 
     <!-- Overview Stats Cards -->
     <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
@@ -346,6 +601,8 @@ onMounted(() => {
       </div>
     </div>
 
+    <!-- <pre> {{ userDepositSummary }} </pre> -->
+
     <!-- Loading State -->
     <div v-if="isLoading" class="bg-white rounded-2xl p-12 shadow-2xl text-center">
       <div class="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-purple-500 mx-auto"></div>
@@ -358,39 +615,48 @@ onMounted(() => {
     </div>
 
     <!-- User Summary Table -->
-    <div v-else class="bg-white rounded-2xl shadow-2xl overflow-hidden">
+    <div v-else class="hidden bg-white rounded-2xl shadow-2xl overflow-hidden">
       <div class="overflow-x-auto">
         <table class="w-full">
           <thead class="bg-gray-50 border-b">
             <tr>
               <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">#</th>
-              <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">আইডি</th>
               <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">নাম</th>
-              <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">পরিশোধিত মাস</th>
-              <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">অপরিশোধিত মাস</th>
-              <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">মোট মাস</th>
-              <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">পরিশোধের হার</th>
-              <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">স্ট্যাটাস</th>
+              <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">পরিশোধিত </th>
+              <!-- <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">অপরিশোধিত মাস</th> -->
+              <!-- <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">মোট মাস</th> -->
+              <!-- <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">পরিশোধের হার</th> -->
+              <!-- <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">স্ট্যাটাস</th> -->
               <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">বিস্তারিত</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-gray-200">
             <tr v-for="(user, index) in userDepositSummary" :key="user.userId" class="hover:bg-gray-50 transition-colors">
               <td class="px-4 py-3 text-sm text-gray-900">{{ index + 1 }}</td>
-              <td class="px-4 py-3 text-sm font-medium text-gray-900">{{ user.userId }}</td>
-              <td class="px-4 py-3 text-sm text-gray-800">{{ user.userName }}</td>
+              <!-- <td class="px-4 py-3 text-sm font-medium text-gray-900">{{ user.userId }}</td> -->
+              <td class="px-4 py-3 text-sm text-gray-800">  {{ user.userName }} ({{user.userId}}) </td>
               <td class="px-4 py-3 text-center">
                 <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                  {{ user.totalPaidMonths }} মাস
+                  {{ user.totalPaidMonths }} / {{user.totalMonths}} মাস
                 </span>
+
+                 <div class="flex items-center justify-center gap-2">
+                  <div class="w-16 bg-gray-200 rounded-full h-2">
+                    <div class="rounded-full h-2" 
+                         :class="user.paymentRate >= 70 ? 'bg-green-500' : user.paymentRate >= 30 ? 'bg-yellow-500' : 'bg-red-500'"
+                         :style="{ width: `${user.paymentRate}%` }"></div>
+                  </div>
+                  <span class="text-xs font-medium">{{ user.paymentRate.toFixed(0) }}%</span>
+                </div>
+
               </td>
-              <td class="px-4 py-3 text-center">
+              <!-- <td class="px-4 py-3 text-center">
                 <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
                   {{ user.totalUnpaidMonths }} মাস
                 </span>
-              </td>
-              <td class="px-4 py-3 text-center text-sm font-medium text-gray-700">{{ user.totalMonths }} মাস</td>
-              <td class="px-4 py-3 text-center">
+              </td> -->
+              <!-- <td class="px-4 py-3 text-center text-sm font-medium text-gray-700">{{ user.totalMonths }} মাস</td> -->
+              <!-- <td class="px-4 py-3 text-center">
                 <div class="flex items-center justify-center gap-2">
                   <div class="w-16 bg-gray-200 rounded-full h-2">
                     <div class="rounded-full h-2" 
@@ -399,8 +665,8 @@ onMounted(() => {
                   </div>
                   <span class="text-xs font-medium">{{ user.paymentRate.toFixed(0) }}%</span>
                 </div>
-              </td>
-              <td class="px-4 py-3 text-center">
+              </td> -->
+             <!--  <td class="px-4 py-3 text-center">
                 <span class="px-2 py-1 rounded-full text-xs font-medium"
                       :class="{
                         'bg-green-100 text-green-800': user.status === 'fully_paid',
@@ -409,7 +675,7 @@ onMounted(() => {
                       }">
                   {{ user.status === 'fully_paid' ? 'সব পরিশোধিত' : user.status === 'partially_paid' ? 'আংশিক পরিশোধিত' : 'অপরিশোধিত' }}
                 </span>
-              </td>
+              </td> -->
               <td class="px-4 py-3 text-center">
                 <details class="cursor-pointer">
                   <summary class="text-purple-600 text-sm hover:text-purple-800">
@@ -439,6 +705,743 @@ onMounted(() => {
         </table>
       </div>
     </div>
+
+
+
+      <div class="space-y-6">
+
+    <!-- ==============================
+         SUMMARY CARDS
+    =============================== -->
+    <div class="grid grid-cols-2 gap-3 lg:grid-cols-4">
+
+      <div class="rounded-xl border bg-white p-4">
+        <p class="text-sm text-gray-500">Target Amount</p>
+
+        <p class="mt-1 text-2xl font-bold text-gray-900">
+          {{ formatMoney(reportTotals.target) }}
+        </p>
+      </div>
+
+      <div class="rounded-xl border bg-white p-4">
+        <p class="text-sm text-gray-500">Paid Amount</p>
+
+        <p class="mt-1 text-2xl font-bold text-green-600">
+          {{ formatMoney(reportTotals.paid) }}
+        </p>
+      </div>
+
+      <div class="rounded-xl border bg-white p-4">
+        <p class="text-sm text-gray-500">Due Amount</p>
+
+        <p class="mt-1 text-2xl font-bold text-red-600">
+          {{ formatMoney(reportTotals.due) }}
+        </p>
+      </div>
+
+      <div class="rounded-xl border bg-white p-4">
+        <p class="text-sm text-gray-500">Collection Rate</p>
+
+        <p class="mt-1 text-2xl font-bold text-blue-600">
+          {{ reportTotals.rate.toFixed(1) }}%
+        </p>
+      </div>
+
+    </div>
+
+
+    <!-- ==============================
+         REPORT TABLE
+    =============================== -->
+    <div class="overflow-hidden rounded-xl border bg-white">
+
+      <!-- Header -->
+      <div class="flex items-center justify-between border-b px-4 py-4">
+
+        <div>
+          <h2 class="font-semibold text-gray-900">
+            User Deposit Summary
+          </h2>
+
+          <p class="mt-1 text-sm text-gray-500">
+            {{ userDepositSummary.length }} users
+          </p>
+        </div>
+
+      </div>
+
+
+      <!-- Horizontal scroll -->
+      <div class="overflow-x-auto">
+
+        <table class="w-full min-w-[1100px] text-sm">
+
+          <!-- ==========================
+               TABLE HEADER
+          =========================== -->
+          <thead class="border-b bg-gray-50">
+
+            <tr class="text-left text-xs uppercase text-gray-500">
+
+              <th class="w-12 px-4 py-3">
+                #
+              </th>
+
+              <th class="px-4 py-3">
+                User
+              </th>
+
+              <th class="px-4 py-3">
+                Session
+              </th>
+
+              <th class="px-4 py-3 text-right">
+                Target
+              </th>
+
+              <th class="px-4 py-3 text-right">
+                Paid
+              </th>
+
+              <th class="px-4 py-3 text-right">
+                Due
+              </th>
+
+              <th class="px-4 py-3 text-center">
+                Paid Months
+              </th>
+
+              <th class="px-4 py-3 text-center">
+                Due Months
+              </th>
+
+              <th class="px-4 py-3">
+                Progress
+              </th>
+
+              <th class="px-4 py-3">
+                Status
+              </th>
+
+              <th class="px-4 py-3">
+                Action
+              </th>
+
+            </tr>
+
+          </thead>
+
+
+          <!-- ==========================
+               TABLE BODY
+          =========================== -->
+          <tbody class="divide-y">
+
+            <template
+              v-for="(user, index) in userDepositSummary"
+              :key="user.userId"
+            >
+
+              <!-- ========================
+                   USER ROW
+              ========================= -->
+              <tr class="transition hover:bg-gray-50">
+
+                <!-- # -->
+                <td class="px-4 py-4 text-gray-500">
+                  {{ index + 1 }}
+                </td>
+
+
+                <!-- USER -->
+                <td class="px-4 py-4">
+
+                  <div class="flex items-center gap-3">
+
+                    <div
+                      class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gray-100 font-semibold text-gray-600"
+                    >
+                      {{
+                        user.userName?.charAt(0) || '?'
+                      }}
+                    </div>
+
+                    <div class="min-w-0">
+
+                      <p class="truncate font-medium text-gray-900">
+                        {{ user.userName }}
+                      </p>
+
+                      <p class="text-xs text-gray-500">
+                        {{ user.userId }}
+                      </p>
+
+                    </div>
+
+                  </div>
+
+                </td>
+
+
+                <!-- SESSION -->
+                <td class="px-4 py-4">
+
+                  <template v-if="selectedSession !== 'all'">
+
+                    <span
+                      class="rounded-md bg-gray-100 px-2 py-1 text-xs font-medium"
+                    >
+                      {{ selectedSession }}
+                    </span>
+
+                  </template>
+
+                  <template v-else>
+
+                    <div class="flex flex-wrap gap-1">
+
+                      <span
+                        v-for="session in user.sessions"
+                        :key="session"
+                        class="rounded-md bg-gray-100 px-2 py-1 text-xs"
+                      >
+                        {{ session }}
+                      </span>
+
+                    </div>
+
+                  </template>
+
+                </td>
+
+
+                <!-- TARGET -->
+                <td class="px-4 py-4 text-right font-semibold">
+                  {{ formatMoney(user.totalTargetAmount) }}
+                </td>
+
+
+                <!-- PAID -->
+                <td class="px-4 py-4 text-right font-semibold text-green-600">
+                  {{ formatMoney(user.totalPaidAmount) }}
+                </td>
+
+
+                <!-- DUE -->
+                <td
+                  class="px-4 py-4 text-right font-semibold"
+                  :class="
+                    user.totalDueAmount > 0
+                      ? 'text-red-600'
+                      : 'text-gray-400'
+                  "
+                >
+                  {{ formatMoney(user.totalDueAmount) }}
+                </td>
+
+
+                <!-- PAID MONTHS -->
+                <td class="px-4 py-4 text-center">
+
+                  <span
+                    class="inline-flex min-w-8 justify-center rounded-full bg-green-50 px-2 py-1 font-medium text-green-700"
+                  >
+                    {{ user.totalPaidMonths }}
+                  </span>
+
+                </td>
+
+
+                <!-- DUE MONTHS -->
+                <td class="px-4 py-4 text-center">
+
+                  <span
+                    class="inline-flex min-w-8 justify-center rounded-full px-2 py-1 font-medium"
+                    :class="
+                      user.totalUnpaidMonths > 0
+                        ? 'bg-red-50 text-red-700'
+                        : 'bg-gray-50 text-gray-400'
+                    "
+                  >
+                    {{ user.totalUnpaidMonths }}
+                  </span>
+
+                </td>
+
+
+                <!-- PROGRESS -->
+                <td class="px-4 py-4">
+
+                  <div class="w-28">
+
+                    <div class="mb-1 flex justify-between text-xs">
+
+                      <span class="text-gray-500">
+                        {{ user.paymentRate.toFixed(1) }}%
+                      </span>
+
+                    </div>
+
+                    <div class="h-1.5 overflow-hidden rounded-full bg-gray-200">
+
+                      <div
+                        class="h-full rounded-full transition-all"
+                        :class="progressColor(user.paymentRate)"
+                        :style="{
+                          width: `${Math.min(user.paymentRate, 100)}%`
+                        }"
+                      />
+
+                    </div>
+
+                  </div>
+
+                </td>
+
+
+                <!-- STATUS -->
+                <td class="px-4 py-4">
+
+                  <span
+                    class="inline-flex whitespace-nowrap rounded-full px-2.5 py-1 text-xs font-medium"
+                    :class="statusClass(user.status)"
+                  >
+                    {{ statusLabel(user.status) }}
+                  </span>
+
+                </td>
+
+
+                <!-- ACTION -->
+                <td class="px-4 py-4">
+
+                  <button
+                    type="button"
+                    class="rounded-lg border px-3 py-1.5 text-xs font-medium text-gray-700 transition hover:bg-gray-50"
+                    @click="toggleDetails(user.userId)"
+                  >
+                    {{
+                      expandedUser === user.userId
+                        ? 'Hide'
+                        : 'Details'
+                    }}
+                  </button>
+
+                </td>
+
+              </tr>
+
+
+              <!-- ========================
+                   EXPANDED DETAILS
+              ========================= -->
+              <tr
+                v-if="expandedUser === user.userId"
+                class="bg-gray-50/70"
+              >
+
+                <td
+                  colspan="11"
+                  class="p-0"
+                >
+
+                  <div class="border-y bg-gray-50 p-4">
+
+                    <!-- Financial summary -->
+                    <div class="mb-4 grid grid-cols-1 gap-3 sm:grid-cols-3">
+
+                      <!-- Monthly -->
+                      <div class="rounded-lg border bg-white p-3">
+
+                        <p class="text-xs text-gray-500">
+                          Monthly Deposit
+                        </p>
+
+                        <div class="mt-2 flex justify-between">
+
+                          <span>
+                            Target
+                          </span>
+
+                          <strong>
+                            {{
+                              formatMoney(
+                                getMonthlyTarget(user)
+                              )
+                            }}
+                          </strong>
+
+                        </div>
+
+                        <div class="flex justify-between text-green-600">
+
+                          <span>
+                            Paid
+                          </span>
+
+                          <strong>
+                            {{
+                              formatMoney(
+                                getMonthlyPaid(user)
+                              )
+                            }}
+                          </strong>
+
+                        </div>
+
+                        <div class="flex justify-between text-red-600">
+
+                          <span>
+                            Due
+                          </span>
+
+                          <strong>
+                            {{
+                              formatMoney(
+                                getMonthlyDue(user)
+                              )
+                            }}
+                          </strong>
+
+                        </div>
+
+                      </div>
+
+
+                      <!-- Yearly -->
+                      <div class="rounded-lg border bg-white p-3">
+
+                        <p class="text-xs text-gray-500">
+                          Yearly Deposit
+                        </p>
+
+                        <div class="mt-2 flex justify-between">
+
+                          <span>
+                            Target
+                          </span>
+
+                          <strong>
+                            {{
+                              formatMoney(
+                                getYearlyTarget(user)
+                              )
+                            }}
+                          </strong>
+
+                        </div>
+
+                        <div class="flex justify-between text-green-600">
+
+                          <span>
+                            Paid
+                          </span>
+
+                          <strong>
+                            {{
+                              formatMoney(
+                                getYearlyPaid(user)
+                              )
+                            }}
+                          </strong>
+
+                        </div>
+
+                        <div class="flex justify-between text-red-600">
+
+                          <span>
+                            Due
+                          </span>
+
+                          <strong>
+                            {{
+                              formatMoney(
+                                getYearlyDue(user)
+                              )
+                            }}
+                          </strong>
+
+                        </div>
+
+                      </div>
+
+
+                      <!-- Cost -->
+                      <div class="rounded-lg border bg-white p-3">
+
+                        <p class="text-xs text-gray-500">
+                          Yearly Cost
+                        </p>
+
+                        <div class="mt-2 flex justify-between">
+
+                          <span>
+                            Target
+                          </span>
+
+                          <strong>
+                            {{
+                              formatMoney(
+                                getCostTarget(user)
+                              )
+                            }}
+                          </strong>
+
+                        </div>
+
+                        <div class="flex justify-between text-green-600">
+
+                          <span>
+                            Paid
+                          </span>
+
+                          <strong>
+                            {{
+                              formatMoney(
+                                getCostPaid(user)
+                              )
+                            }}
+                          </strong>
+
+                        </div>
+
+                        <div class="flex justify-between text-red-600">
+
+                          <span>
+                            Due
+                          </span>
+
+                          <strong>
+                            {{
+                              formatMoney(
+                                getCostDue(user)
+                              )
+                            }}
+                          </strong>
+
+                        </div>
+
+                      </div>
+
+                    </div>
+
+
+                    <!-- =====================
+                         MONTH DETAILS
+                    ====================== -->
+                    <div class="overflow-hidden rounded-lg border bg-white">
+
+                      <div class="border-b px-4 py-3">
+
+                        <h3 class="text-sm font-semibold">
+                          Monthly Payment Details
+                        </h3>
+
+                      </div>
+
+                      <div class="overflow-x-auto">
+
+                        <table class="w-full min-w-[700px] text-sm">
+
+                          <thead class="bg-gray-50 text-xs uppercase text-gray-500">
+
+                            <tr>
+
+                              <th class="px-4 py-3 text-left">
+                                Session
+                              </th>
+
+                              <th class="px-4 py-3 text-left">
+                                Month
+                              </th>
+
+                              <th class="px-4 py-3 text-right">
+                                Target
+                              </th>
+
+                              <th class="px-4 py-3 text-right">
+                                Paid
+                              </th>
+
+                              <th class="px-4 py-3 text-right">
+                                Due
+                              </th>
+
+                              <th class="px-4 py-3 text-left">
+                                Status
+                              </th>
+
+                            </tr>
+
+                          </thead>
+
+                          <tbody class="divide-y">
+
+                            <!-- Paid months -->
+                            <tr
+                              v-for="item in user.paidMonthsDetails"
+                              :key="`${item.session}-${item.month}-paid`"
+                            >
+
+                              <td class="px-4 py-3">
+                                {{ item.session }}
+                              </td>
+
+                              <td class="px-4 py-3">
+                                {{ item.month }}
+                              </td>
+
+                              <td class="px-4 py-3 text-right">
+                                {{ formatMoney(item.amount) }}
+                              </td>
+
+                              <td class="px-4 py-3 text-right text-green-600">
+                                {{ formatMoney(item.amount) }}
+                              </td>
+
+                              <td class="px-4 py-3 text-right text-gray-400">
+                                {{ formatMoney(0) }}
+                              </td>
+
+                              <td class="px-4 py-3">
+                                <span class="text-green-600">
+                                  ● Paid
+                                </span>
+                              </td>
+
+                            </tr>
+
+
+                            <!-- Unpaid months -->
+                            <tr
+                              v-for="item in user.unpaidMonthsDetails"
+                              :key="`${item.session}-${item.month}-due`"
+                            >
+
+                              <td class="px-4 py-3">
+                                {{ item.session }}
+                              </td>
+
+                              <td class="px-4 py-3">
+                                {{ item.month }}
+                              </td>
+
+                              <td class="px-4 py-3 text-right">
+                                {{ formatMoney(item.amount) }}
+                              </td>
+
+                              <td class="px-4 py-3 text-right text-gray-400">
+                                {{ formatMoney(0) }}
+                              </td>
+
+                              <td class="px-4 py-3 text-right text-red-600">
+                                {{ formatMoney(item.amount) }}
+                              </td>
+
+                              <td class="px-4 py-3">
+                                <span class="text-red-600">
+                                  ● Due
+                                </span>
+                              </td>
+
+                            </tr>
+
+                          </tbody>
+
+                        </table>
+
+                      </div>
+
+                    </div>
+
+                  </div>
+
+                </td>
+
+              </tr>
+
+            </template>
+
+
+            <!-- ==========================
+                 EMPTY STATE
+            =========================== -->
+            <tr v-if="!userDepositSummary.length">
+
+              <td
+                colspan="11"
+                class="px-4 py-12 text-center"
+              >
+
+                <p class="font-medium text-gray-700">
+                  No deposit data found
+                </p>
+
+                <p class="mt-1 text-sm text-gray-500">
+                  Try changing your session or user filter.
+                </p>
+
+              </td>
+
+            </tr>
+
+          </tbody>
+
+
+          <!-- ==========================
+               TOTAL FOOTER
+          =========================== -->
+          <tfoot
+            v-if="userDepositSummary.length"
+            class="border-t bg-gray-50 font-semibold"
+          >
+
+            <tr>
+
+              <td
+                colspan="3"
+                class="px-4 py-4"
+              >
+                Total
+              </td>
+
+              <td class="px-4 py-4 text-right">
+                {{ formatMoney(reportTotals.target) }}
+              </td>
+
+              <td class="px-4 py-4 text-right text-green-600">
+                {{ formatMoney(reportTotals.paid) }}
+              </td>
+
+              <td class="px-4 py-4 text-right text-red-600">
+                {{ formatMoney(reportTotals.due) }}
+              </td>
+
+              <td class="px-4 py-4 text-center">
+                {{ reportTotals.paidMonths }}
+              </td>
+
+              <td class="px-4 py-4 text-center">
+                {{ reportTotals.dueMonths }}
+              </td>
+
+              <td class="px-4 py-4">
+                {{ reportTotals.rate.toFixed(1) }}%
+              </td>
+
+              <td colspan="2" />
+
+            </tr>
+
+          </tfoot>
+
+        </table>
+
+      </div>
+
+    </div>
+
+  </div>
 
     <!-- No Data State -->
     <div v-if="!isLoading && userDepositSummary.length === 0" class="bg-white rounded-2xl p-12 shadow-2xl text-center">

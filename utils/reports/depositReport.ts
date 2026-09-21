@@ -1,8 +1,4 @@
 interface DepositReportOptions {
-  users: User[]
-  sessions: Session[]
-  transactions: Transaction[]
-
   userId?: string | null
   session?: string | null
 }
@@ -12,10 +8,13 @@ export function buildDepositReport(
   options: DepositReportOptions
 ) {
 
+  const transactions = useDepositsStore().all;
+  const users = useUsersStore().user;
+  const sessions = useSessionsStore().session;
   const {
-    users,
-    sessions,
-    transactions,
+    // users,
+    // sessions,
+    // transactions,
     userId,
     session
   } = options
@@ -61,12 +60,12 @@ export function buildDepositReport(
       )
 
 
-    return calculateUserReport(
+    return {
       user,
       userTransactions,
       sessions,
       session
-    )
+    }
 
   })
 

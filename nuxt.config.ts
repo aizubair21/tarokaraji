@@ -47,5 +47,9 @@ export default defineNuxtConfig({
     },
   },
   devtools: { enabled: true },
-
+  vite:{
+    server:{
+	allowedHosts: ['tarokaraji.test', '.test']
+}  
+}	
 })
