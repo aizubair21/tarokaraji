@@ -57,6 +57,11 @@ const currentSessionDeposit = computed(() => {
     .reduce((sum, d) => sum + getAmount(d), 0) || 0
 })
 
+const totalDueDeposit = computed(() => {
+  const target = useSessionsStore().session?.reduce( (sum, s) => sum + parseFloat(s.totalDeposit), 0) || 0;
+  return target - totalDeposit.value;
+})
+
 
 </script>
 
@@ -95,7 +100,13 @@ const currentSessionDeposit = computed(() => {
     <div class="bg-white border border-gray-200 rounded-2xl p-5 shadow-sm hover:shadow-md transition-shadow">
       <h3 class="text-sm font-medium text-gray-600 mb-2">চলতি সেশনের আমানত</h3>
       <p class="text-2xl font-bold text-cyan-600">{{ currentSessionDeposit.toLocaleString() }} ৳</p>
+    </div> 
+
+    <div class="bg-white border border-gray-200 rounded-2xl p-5 shadow-sm hover:shadow-md transition-shadow">
+      <h3 class="text-sm font-medium text-gray-600 mb-2"> মোট বকেয়া আমানত</h3>
+      <p class="text-2xl font-bold text-cyan-600">{{ totalDueDeposit.toLocaleString() }} ৳</p>
     </div>
+
   </div>
 </div>
 

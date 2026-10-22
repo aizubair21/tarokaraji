@@ -21,6 +21,7 @@ export const useUsersStore = defineStore('users', () => {
     return {
         fetchUsers, user, admins,
     };
-}, {
-    persist:true
+}, 
+{
+    // persist:true
 });

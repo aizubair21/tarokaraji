@@ -1,6 +1,7 @@
 <script setup>
 const auth = useAuthStore()
 const data = useDataStore()
+const saving = ref(false);
 
 
 if (!auth.isAuthenticated) {
@@ -33,10 +34,16 @@ const fetchUsers = async () => {
 }
 
 const addDeposit = async () => {
+  saving.value = true;
+  auth.isLoading = true;
   await $fetch('/api/crud/Transactions', {
     method: 'POST',
     body: { ...form, created_at: new Date().toISOString() }
   })
+
+  await useDepositsStore().fetchDeposits()
+  auth.isLoading = false;
+  saving.value = false;
   navigateTo('/deposits')
 }
 

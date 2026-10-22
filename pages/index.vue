@@ -172,47 +172,8 @@ const paymentMethodStats = computed(() => {
     </div>
 
 
-    <!-- Admin Section -->
-    <div v-if="auth.isAdmin">
-      <!-- Recent Members -->
-      <div>
-        <h2 class="mt-2 text-xl font-bold text-white mb-4 pb-2 border-b border-gray-300">সর্বশেষ নিবন্ধিত সদস্য</h2>
-
-        <div class="bg-white rounded-2xl  overflow-hidden">
-          <div class="divide-y divide-gray-200">
-            <div v-for="(member, index) in lastFiveMembers" :key="index"
-              class="flex items-center justify-between p-4 hover:bg-gray-50 transition-colors">
-              <div class="flex items-center space-x-4">
-                <div
-                  class="w-8 h-8 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center text-white font-bold">
-                  {{ index + 1 }}
-                </div>
-                <div>
-                  <p class="font-medium text-gray-900">{{ member.name_bangla || 'নাম নেই' }}</p>
-                  <p class="text-sm text-gray-500">আইডি: {{ member.user_id }}</p>
-                </div>
-              </div>
-              <div class="flex space-x-2">
-                <NuxtLink v-if="auth.isAdmin" :to="`/users/${member.user_id}`"
-                  class="bg-blue-500 text-white rounded-lg p-2 hover:bg-blue-600 transition-colors shadow-md">
-                  <i class="fas fa-edit"></i>
-                </NuxtLink>
-                <NuxtLink :to="`/users/view/${member.user_id}`"
-                  class="bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-lg p-2 hover:from-purple-600 hover:to-pink-600 transition-colors shadow-md">
-                  <i class="fas fa-angle-right"></i>
-                </NuxtLink>
-              </div>
-            </div>
-            <div v-if="lastFiveMembers.length === 0" class="p-8 text-center text-gray-500">
-              কোনো সদস্যের তথ্য পাওয়া যায়নি
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
     <!-- User Section (Non-Admin) -->
-    <div v-else class="mt-5">
+    <div v-if="!auth.isAdmin" class="mt-5">
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div class="bg-gradient-to-r from-blue-500 to-blue-600 rounded-2xl p-6  text-white">
           <h3 class="text-lg font-semibold mb-2">আমার মোট আমানত</h3>

@@ -16,6 +16,8 @@ export const useSessionsStore = defineStore('sessions', () => {
     return {
         fetchSessions, session,
     };
-}, {
-    persist:true,
+}, 
+
+{
+    // persist:true,
 });

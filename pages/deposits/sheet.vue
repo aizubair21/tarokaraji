@@ -191,15 +191,15 @@ const fetchDeposits = async () => {
     updateFilterOptions()
   } catch (err) {
     error.value = err.message || 'Failed to fetch data from Google Sheets'
-    console.error('Error fetching deposits:', err)
+    // console.error('Error fetching deposits:', err)
   } finally {
     isLoading.value = false
     auth.isLoading = false
   }
 }
 
-const editDeposit = (deposit) => {
-  editing.value = deposit.user_id
+const editDeposit = (deposit, index) => {
+  editing.value = index;
   Object.assign(form, {
     user_id: deposit.user_id,
     session: deposit.session,
@@ -227,11 +227,12 @@ const updateDeposit = async () => {
   }
 }
 
-const deleteDeposit = async (userId) => {
+const deleteDeposit = async (index) => {
   if (!confirm('Are you sure you want to delete this deposit?')) return
   
   try {
-    await $fetch(`/api/crud/Transactions?id=${userId}`, {
+    console.log(index);
+    await $fetch(`/api/crud/Transactions?id=${index}`, {
       method: 'DELETE'
     })
     await fetchDeposits()
@@ -296,26 +297,25 @@ onMounted(() => {
           <h1 class="text-3xl font-bold bg-gradient-to-r from-green-600 to-teal-600 bg-clip-text text-transparent">
             আমানত
           </h1>
-          <p class="text-sm text-gray-500 mt-1">Connected to Google Sheets</p>
         </div>
         
         <div class="flex items-center justify-between gap-3">
           <NuxtLink to="/deposits/add"
           class="bg-gradient-to-r from-purple-500 to-indigo-500 text-white rounded-xl py-3 px-6 hover:from-purple-600 hover:to-indigo-600 focus:outline-none focus:ring-4 focus:ring-purple-300 transform hover:scale-105 transition-all duration-200 font-semibold shadow-lg"
           >
-            <i class="fas fa-plus mr-2"></i>
+            <i class="fas fa-plus"></i>
           </NuxtLink>
           <button 
             @click="fetchDeposits" 
             class="bg-gradient-to-r from-blue-500 to-indigo-500 text-white rounded-xl py-3 px-6 hover:from-blue-600 hover:to-indigo-600 focus:outline-none focus:ring-4 focus:ring-blue-300 transform hover:scale-105 transition-all duration-200 font-semibold shadow-lg"
           >
-            <i class="fas fa-sync-alt mr-2"></i>
+            <i class="fas fa-sync-alt"></i>
           </button>
         </div>
       </div>
       
       <!-- Filter Bar -->
-      <div class="md:hidden flex flex-wrap items-center justify-between gap-3 pt-4 border-t border-gray-200">
+      <div class="flex flex-wrap items-center justify-between gap-3 pt-4 border-t border-gray-200">
         <div class="flex items-center gap-3">
           <button 
             @click="isFilterModalOpen = true" 
@@ -344,7 +344,7 @@ onMounted(() => {
     </div>
 
     <!-- Stats Cards -->
-    <DepositOverview :deposits class="print:hidden" />
+    <!-- <DepositOverview :deposits class="print:hidden" /> -->
 
     <!-- Error Message -->
     <div v-if="error" class="print:hidden bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-2xl">
@@ -363,7 +363,7 @@ onMounted(() => {
       <div class="flex ">
 
         <!-- left filter asside  -->
-        <div class="min-w-\[250px\] mr-4 hidden md:block print:hidden">
+        <div class="min-w-[300px] mr-4 hidden md:block print:hidden">
           <div class="flex justify-between items-center mb-6">
             <h3 class="text-2xl font-bold text-gray-900">Filter Deposits</h3>
             <button 
@@ -464,7 +464,8 @@ onMounted(() => {
             </thead>
             <tbody class="divide-y divide-gray-200">
               <tr v-for="(deposit, index) in paginatedDeposits" :key="deposit.user_id + index" class="hover:bg-gray-50">
-                <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">{{ (currentPage - 1) * itemsPerPage + index + 1 }}</td>
+                <!-- <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">{{ (currentPage - 1) * itemsPerPage + index + 1 }}</td> -->
+                <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">{{ deposit.id }}</td>
                 <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">{{ deposit.user_id }}</td>
                 <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">
                   <span class="px-2 py-1 rounded-full text-xs font-medium"
@@ -485,11 +486,11 @@ onMounted(() => {
                 <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">{{ deposit.send_from || '-' }}</td>
                 <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">{{ deposit.date || '-' }}</td>
                 <td v-if="auth.isAdmin" class="px-4 py-3 whitespace-nowrap text-sm font-medium">
-                  <button @click="editDeposit(deposit)" class="text-indigo-600 hover:text-indigo-900 mr-3">
-                    <i class="fas fa-edit"></i> Edit
+                  <button @click="editDeposit(deposit, deposit.id)" class="text-indigo-600 hover:text-indigo-900 mr-3">
+                    <i class="fas fa-edit"></i>
                   </button>
-                  <button @click="deleteDeposit(deposit.user_id)" class="text-red-600 hover:text-red-900">
-                    <i class="fas fa-trash"></i> Delete
+                  <button @click="deleteDeposit(deposit.id)" class="text-red-600 hover:text-red-900">
+                    <i class="fas fa-trash"></i>
                   </button>
                 </td>
               </tr>
@@ -501,89 +502,91 @@ onMounted(() => {
             </tbody>
           </table>
         </div>
-      </div>
-      
-      
-      <!-- Pagination Controls -->
-      <div class="flex flex-col sm:flex-row justify-between items-center gap-4 mt-6 pt-4 border-t border-gray-200">
-        <!-- Items per page selector -->
-        <div class="flex items-center gap-2">
-          <span class="text-sm text-gray-600">Show:</span>
-          <select 
-            v-model="itemsPerPage"
-            @change="changeItemsPerPage($event.target.value)"
-            class="border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
-          >
-            <option v-for="option in itemsPerPageOptions" :key="option" :value="option">
-              {{ option }}
-            </option>
-          </select>
-          <span class="text-sm text-gray-600">entries</span>
-        </div>
+
         
-        <!-- Pagination buttons -->
-        <div class="flex items-center gap-2">
-          <!-- First page -->
-          <button 
-            @click="goToPage(1)"
-            :disabled="currentPage === 1"
-            class="px-3 py-1.5 rounded-lg border hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
-            :class="currentPage === 1 ? 'text-gray-400' : 'text-gray-700 hover:border-purple-300'"
-          >
-            <i class="fas fa-angle-double-left"></i>
-          </button>
-          
-          <!-- Previous page -->
-          <button 
-            @click="prevPage"
-            :disabled="currentPage === 1"
-            class="px-3 py-1.5 rounded-lg border hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
-            :class="currentPage === 1 ? 'text-gray-400' : 'text-gray-700 hover:border-purple-300'"
-          >
-            <i class="fas fa-angle-left"></i>
-          </button>
-          
-          <!-- Page numbers -->
-          <div class="flex gap-1">
-            <button
-              v-for="page in pageNumbers"
-              :key="page"
-              @click="goToPage(page)"
-              class="px-3 py-1.5 rounded-lg transition-all"
-              :class="currentPage === page 
-                ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-md' 
-                : 'border text-gray-700 hover:bg-gray-50'"
+        <!-- Pagination Controls -->
+        <div class="flex flex-col sm:flex-row justify-between items-center gap-4 mt-6 pt-4 border-t border-gray-200">
+          <!-- Items per page selector -->
+          <div class="flex items-center gap-2">
+            <span class="text-sm text-gray-600">Show:</span>
+            <select 
+              v-model="itemsPerPage"
+              @change="changeItemsPerPage($event.target.value)"
+              class="border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
             >
-              {{ page }}
+              <option v-for="option in itemsPerPageOptions" :key="option" :value="option">
+                {{ option }}
+              </option>
+            </select>
+            <span class="text-sm text-gray-600">entries</span>
+          </div>
+          
+          <!-- Pagination buttons -->
+          <div class="flex items-center gap-2">
+            <!-- First page -->
+            <button 
+              @click="goToPage(1)"
+              :disabled="currentPage === 1"
+              class="px-3 py-1.5 rounded-lg border hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+              :class="currentPage === 1 ? 'text-gray-400' : 'text-gray-700 hover:border-purple-300'"
+            >
+              <i class="fas fa-angle-double-left"></i>
+            </button>
+            
+            <!-- Previous page -->
+            <button 
+              @click="prevPage"
+              :disabled="currentPage === 1"
+              class="px-3 py-1.5 rounded-lg border hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+              :class="currentPage === 1 ? 'text-gray-400' : 'text-gray-700 hover:border-purple-300'"
+            >
+              <i class="fas fa-angle-left"></i>
+            </button>
+            
+            <!-- Page numbers -->
+            <div class="flex gap-1">
+              <button
+                v-for="page in pageNumbers"
+                :key="page"
+                @click="goToPage(page)"
+                class="px-3 py-1.5 rounded-lg transition-all"
+                :class="currentPage === page 
+                  ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-md' 
+                  : 'border text-gray-700 hover:bg-gray-50'"
+              >
+                {{ page }}
+              </button>
+            </div>
+            
+            <!-- Next page -->
+            <button 
+              @click="nextPage"
+              :disabled="currentPage === totalPages"
+              class="px-3 py-1.5 rounded-lg border hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+              :class="currentPage === totalPages ? 'text-gray-400' : 'text-gray-700 hover:border-purple-300'"
+            >
+              <i class="fas fa-angle-right"></i>
+            </button>
+            
+            <!-- Last page -->
+            <button 
+              @click="goToPage(totalPages)"
+              :disabled="currentPage === totalPages"
+              class="px-3 py-1.5 rounded-lg border hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+              :class="currentPage === totalPages ? 'text-gray-400' : 'text-gray-700 hover:border-purple-300'"
+            >
+              <i class="fas fa-angle-double-right"></i>
             </button>
           </div>
           
-          <!-- Next page -->
-          <button 
-            @click="nextPage"
-            :disabled="currentPage === totalPages"
-            class="px-3 py-1.5 rounded-lg border hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
-            :class="currentPage === totalPages ? 'text-gray-400' : 'text-gray-700 hover:border-purple-300'"
-          >
-            <i class="fas fa-angle-right"></i>
-          </button>
-          
-          <!-- Last page -->
-          <button 
-            @click="goToPage(totalPages)"
-            :disabled="currentPage === totalPages"
-            class="px-3 py-1.5 rounded-lg border hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
-            :class="currentPage === totalPages ? 'text-gray-400' : 'text-gray-700 hover:border-purple-300'"
-          >
-            <i class="fas fa-angle-double-right"></i>
-          </button>
-        </div>
-        
-        <!-- Info text -->
-        <div class="text-sm text-gray-500">
-          Page {{ currentPage }} of {{ totalPages || 1 }}
+          <!-- Info text -->
+          <div class="text-sm text-gray-500">
+            Page {{ currentPage }} of {{ totalPages || 1 }}
+          </div>
         </div>
       </div>
+      
+      
     </div>
 
     <!-- Empty State -->

@@ -1,5 +1,4 @@
 <script setup>
-import Input from '~/components/Input.vue'
 
 const auth = useAuthStore();
 const data = useDataStore()
@@ -300,7 +299,7 @@ onMounted(() => {
     <!-- Loading State -->
 
     <!-- Data Table -->
-   <!--  <div v-else-if="deposits.length > 0" class="bg-white bg-opacity-90 backdrop-blur-md rounded-2xl p-6 shadow-2xl">
+ <!--    <div class="bg-white bg-opacity-90 backdrop-blur-md rounded-2xl p-6 shadow-2xl">
       <div class="overflow-x-auto">
         <table class="min-w-full table-auto bordered">
           <thead>

@@ -1,4 +1,5 @@
 // plugins/bootstrap.ts
+
 export default defineNuxtPlugin(async () => {
   const userStore = useUsersStore()
   const sessionStore = useSessionsStore()

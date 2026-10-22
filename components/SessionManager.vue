@@ -13,8 +13,9 @@ const form = reactive({
 
 // Fetch all sessions - Updated path
 const fetchSessions = async () => {
- sessions.value = useSessionsStore().session;
- console.log(sessions.value);
+ await useSessionsStore().fetchSessions();
+ sessions.value = useSessionsStore().sessions;
+ // console.log(sessions.value);
 }
 
 // Create new session - Updated path
