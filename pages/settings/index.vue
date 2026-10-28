@@ -8,26 +8,23 @@
       <p class="text-sm text-gray-500 mt-1">সিস্টেম কনফিগারেশন ও ব্যক্তিগত সেটিংস</p>
     </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <div class="flex flex-col gap-6">
       
       <!-- Sidebar Navigation -->
       <div class="lg:col-span-1">
-        <div class="bg-white rounded-2xl shadow-xl overflow-hidden sticky top-20">
-          <div class="p-4 border-b border-gray-200">
-            <h2 class="font-semibold text-gray-800">সেটিংস মেনু</h2>
-          </div>
-          <div class="p-2">
+        <div class="bg-white overflow-hidden sticky top-20">
+          <div class="flex gap-3 overflow-x-scroll">
             <button
               v-for="tab in settingsTabs"
               :key="tab.id"
               @click="activeTab = tab.id"
-              class="w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200"
+              class="w-full flex items-center gap-3 px-3 rounded-xl transition-all duration-200"
               :class="activeTab === tab.id 
                 ? 'bg-gradient-to-r from-purple-50 to-pink-50 text-purple-700 border-r-4 border-purple-600' 
                 : 'text-gray-600 hover:bg-gray-50'"
             >
-              <i :class="[tab.icon, 'text-lg']"></i>
-              <span class="font-medium">{{ tab.name }}</span>
+              <i :class="[tab.icon, 'text-md']"></i>
+              <span class="inline-flex font-nowrap texy-nowrap nowrap texy-md">{{ tab.name }}</span>
             </button>
           </div>
         </div>
@@ -269,7 +266,7 @@
         </div>
 
         <!-- About Section -->
-        <div v-if="activeTab === 'about'" class="bg-white rounded-2xl shadow-xl overflow-hidden">
+        <div v-if="ractiveTab === 'about'" class="bg-white rounded-2xl shadow-xl overflow-hidden">
           <div class="p-6 border-b border-gray-200">
             <h2 class="text-xl font-bold text-gray-800">সিস্টেম সম্পর্কে</h2>
             <p class="text-sm text-gray-500 mt-1">সিস্টেম তথ্য এবং সংস্করণ</p>
