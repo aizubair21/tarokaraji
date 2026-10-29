@@ -9,9 +9,9 @@ if (!auth.isAuthenticated) {
 }
 
 
-definePageMeta({
-  layout:false,  
-})
+// definePageMeta({
+//   layout:false,  
+// })
 
 const isFilterModalOpen = ref(false)
 const isLoading = ref(true)
@@ -180,7 +180,7 @@ const changeItemsPerPage = (value) => {
 
 const fetchDeposits = async () => {
   auth.isLoading = true;
-  isLoading.value = true
+  // isLoading.value = true
   error.value = null
   
   try {
@@ -193,7 +193,7 @@ const fetchDeposits = async () => {
     error.value = err.message || 'Failed to fetch data from Google Sheets'
     // console.error('Error fetching deposits:', err)
   } finally {
-    isLoading.value = false
+    // isLoading.value = false
     auth.isLoading = false
   }
 }
@@ -352,13 +352,13 @@ onMounted(() => {
     </div>
 
     <!-- Loading State -->
-    <div v-if="isLoading" class="print:hidden bg-white bg-opacity-90 backdrop-blur-md rounded-2xl p-12 text-center">
+    <!-- <div v-if="isLoading" class="print:hidden bg-white bg-opacity-90 backdrop-blur-md rounded-2xl p-12 text-center">
       <div class="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-green-500 mx-auto"></div>
       <p class="mt-4 text-gray-500">Loading data from Google Sheets...</p>
-    </div>
+    </div> -->
 
     <!-- Data Table -->
-    <div v-else-if="deposits.length > 0" class="bg-white bg-opacity-90 backdrop-blur-md p-6">
+    <div v-if="deposits.length > 0" class="bg-white bg-opacity-90 backdrop-blur-md p-6">
 
       <div class="flex ">
 
@@ -445,7 +445,7 @@ onMounted(() => {
         </div>
 
         <!-- sheet table  -->
-        <div class="overflow-x-auto w-full">
+        <div class="overflow-x-scroll w-full">
           <table class="min-w-full table-auto bordered">
             <thead>
               <tr class="bg-gray-50">
@@ -501,89 +501,89 @@ onMounted(() => {
               </tr>
             </tbody>
           </table>
-        </div>
 
-        
-        <!-- Pagination Controls -->
-        <div class="flex flex-col sm:flex-row justify-between items-center gap-4 mt-6 pt-4 border-t border-gray-200">
-          <!-- Items per page selector -->
-          <div class="flex items-center gap-2">
-            <span class="text-sm text-gray-600">Show:</span>
-            <select 
-              v-model="itemsPerPage"
-              @change="changeItemsPerPage($event.target.value)"
-              class="border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
-            >
-              <option v-for="option in itemsPerPageOptions" :key="option" :value="option">
-                {{ option }}
-              </option>
-            </select>
-            <span class="text-sm text-gray-600">entries</span>
-          </div>
-          
-          <!-- Pagination buttons -->
-          <div class="flex items-center gap-2">
-            <!-- First page -->
-            <button 
-              @click="goToPage(1)"
-              :disabled="currentPage === 1"
-              class="px-3 py-1.5 rounded-lg border hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
-              :class="currentPage === 1 ? 'text-gray-400' : 'text-gray-700 hover:border-purple-300'"
-            >
-              <i class="fas fa-angle-double-left"></i>
-            </button>
-            
-            <!-- Previous page -->
-            <button 
-              @click="prevPage"
-              :disabled="currentPage === 1"
-              class="px-3 py-1.5 rounded-lg border hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
-              :class="currentPage === 1 ? 'text-gray-400' : 'text-gray-700 hover:border-purple-300'"
-            >
-              <i class="fas fa-angle-left"></i>
-            </button>
-            
-            <!-- Page numbers -->
-            <div class="flex gap-1">
-              <button
-                v-for="page in pageNumbers"
-                :key="page"
-                @click="goToPage(page)"
-                class="px-3 py-1.5 rounded-lg transition-all"
-                :class="currentPage === page 
-                  ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-md' 
-                  : 'border text-gray-700 hover:bg-gray-50'"
+           <!-- Pagination Controls -->
+          <div class="flex flex-col sm:flex-row justify-between items-center gap-4 mt-6 pt-4 border-t border-gray-200">
+            <!-- Items per page selector -->
+            <div class="flex items-center gap-2">
+              <span class="text-sm text-gray-600">Show:</span>
+              <select 
+                v-model="itemsPerPage"
+                @change="changeItemsPerPage($event.target.value)"
+                class="border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
               >
-                {{ page }}
+                <option v-for="option in itemsPerPageOptions" :key="option" :value="option">
+                  {{ option }}
+                </option>
+              </select>
+              <span class="text-sm text-gray-600">entries</span>
+            </div>
+            
+            <!-- Pagination buttons -->
+            <div class="flex items-center gap-2">
+              <!-- First page -->
+              <button 
+                @click="goToPage(1)"
+                :disabled="currentPage === 1"
+                class="px-3 py-1.5 rounded-lg border hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                :class="currentPage === 1 ? 'text-gray-400' : 'text-gray-700 hover:border-purple-300'"
+              >
+                <i class="fas fa-angle-double-left"></i>
+              </button>
+              
+              <!-- Previous page -->
+              <button 
+                @click="prevPage"
+                :disabled="currentPage === 1"
+                class="px-3 py-1.5 rounded-lg border hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                :class="currentPage === 1 ? 'text-gray-400' : 'text-gray-700 hover:border-purple-300'"
+              >
+                <i class="fas fa-angle-left"></i>
+              </button>
+              
+              <!-- Page numbers -->
+              <div class="flex gap-1">
+                <button
+                  v-for="page in pageNumbers"
+                  :key="page"
+                  @click="goToPage(page)"
+                  class="px-3 py-1.5 rounded-lg transition-all"
+                  :class="currentPage === page 
+                    ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-md' 
+                    : 'border text-gray-700 hover:bg-gray-50'"
+                >
+                  {{ page }}
+                </button>
+              </div>
+              
+              <!-- Next page -->
+              <button 
+                @click="nextPage"
+                :disabled="currentPage === totalPages"
+                class="px-3 py-1.5 rounded-lg border hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                :class="currentPage === totalPages ? 'text-gray-400' : 'text-gray-700 hover:border-purple-300'"
+              >
+                <i class="fas fa-angle-right"></i>
+              </button>
+              
+              <!-- Last page -->
+              <button 
+                @click="goToPage(totalPages)"
+                :disabled="currentPage === totalPages"
+                class="px-3 py-1.5 rounded-lg border hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                :class="currentPage === totalPages ? 'text-gray-400' : 'text-gray-700 hover:border-purple-300'"
+              >
+                <i class="fas fa-angle-double-right"></i>
               </button>
             </div>
             
-            <!-- Next page -->
-            <button 
-              @click="nextPage"
-              :disabled="currentPage === totalPages"
-              class="px-3 py-1.5 rounded-lg border hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
-              :class="currentPage === totalPages ? 'text-gray-400' : 'text-gray-700 hover:border-purple-300'"
-            >
-              <i class="fas fa-angle-right"></i>
-            </button>
-            
-            <!-- Last page -->
-            <button 
-              @click="goToPage(totalPages)"
-              :disabled="currentPage === totalPages"
-              class="px-3 py-1.5 rounded-lg border hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
-              :class="currentPage === totalPages ? 'text-gray-400' : 'text-gray-700 hover:border-purple-300'"
-            >
-              <i class="fas fa-angle-double-right"></i>
-            </button>
-          </div>
-          
-          <!-- Info text -->
-          <div class="text-sm text-gray-500">
-            Page {{ currentPage }} of {{ totalPages || 1 }}
+            <!-- Info text -->
+            <div class="text-sm text-gray-500">
+              Page {{ currentPage }} of {{ totalPages || 1 }}
+            </div>
           </div>
         </div>
+
       </div>
       
       
