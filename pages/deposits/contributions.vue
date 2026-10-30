@@ -147,7 +147,7 @@ onMounted(() => {
 
       <!-- <pre> {{filteredSessions}} </pre> -->
 
-      <div class="flex items-center justify-between p-2">
+      <div class="md:flex items-center justify-between p-2">
         <!-- Header -->
         <div class="text-center mb-12 print:mb-3">
           <h1 class="text-2xl md:text-3xl font-bold text-gray-700">
@@ -160,7 +160,7 @@ onMounted(() => {
           <!-- Filters -->
           <div v-if="!isLoading" class="print:p-0 mb-8 print:mb-0 mx-w-sm pt-2">
             <div class="flex gap-6 items-center justify-center">
-              <div class="mx-w-md">
+              <div class="w-full mx-w-md">
                 <!-- <label class="block text-sm font-medium text-gray-700 mb-2">সেশন</label> -->
                 <select 
                   v-model="selectedSession" 
@@ -173,7 +173,7 @@ onMounted(() => {
                   </option>
                 </select>
               </div>
-              <div class="mx-w-md">
+              <div class="w-full mx-w-md">
                 <!-- <label class="block text-sm font-medium text-gray-700 mb-2">মাস</label> -->
                 <select 
                   v-model="selectedMonth" 

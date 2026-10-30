@@ -688,6 +688,7 @@ onMounted(() => {
         <h3 class="text-lg font-medium text-gray-900 mb-4">Edit Deposit</h3>
         <form @submit.prevent="updateDeposit" class="space-y-4">
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+		    
             <input v-model="form.type" placeholder="Type" required class="border-2 border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-4 focus:ring-green-300 focus:border-green-500 transition-all duration-200" />
             <input v-model.number="form.amount" placeholder="Amount" required type="number" class="border-2 border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-4 focus:ring-green-300 focus:border-green-500 transition-all duration-200" />
             <input v-model="form.session" placeholder="Session" required class="border-2 border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-4 focus:ring-green-300 focus:border-green-500 transition-all duration-200" />
@@ -696,7 +697,8 @@ onMounted(() => {
             <input v-model="form.pay_to" placeholder="Pay To" class="border-2 border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-4 focus:ring-green-300 focus:border-green-500 transition-all duration-200" />
             <input v-model="form.send_from" placeholder="Send From Number" class="border-2 border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-4 focus:ring-green-300 focus:border-green-500 transition-all duration-200" />
             <input v-model="form.date" placeholder="Date" class="border-2 border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-4 focus:ring-green-300 focus:border-green-500 transition-all duration-200" />
-          </div>
+          
+	  </div>
           <div class="flex space-x-4">
             <button type="submit" class="bg-gradient-to-r from-green-500 to-teal-500 text-white rounded-xl py-3 px-6 hover:from-green-600 hover:to-teal-600 focus:outline-none focus:ring-4 focus:ring-green-300 transform hover:scale-105 transition-all duration-200 font-semibold shadow-lg">
               Update

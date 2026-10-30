@@ -15,7 +15,7 @@ const form = reactive({
 const fetchSessions = async () => {
  await useSessionsStore().fetchSessions();
  sessions.value = useSessionsStore().sessions;
- // console.log(sessions.value);
+ //console.log(sessions.value);
 }
 
 // Create new session - Updated path
@@ -187,7 +187,7 @@ onMounted(() => {
     </div>
 
     <!-- Empty State -->
-    <div v-if="!isLoading && sessions.length === 0" class="text-center py-12 bg-white rounded-2xl">
+    <div v-if="!isLoading && !sessions" class="text-center py-12 bg-white rounded-2xl">
       <i class="fas fa-calendar-alt text-6xl text-gray-300 mb-4"></i>
       <p class="text-gray-500 text-lg">কোনো সেশন পাওয়া যায়নি</p>
       <button 

@@ -144,21 +144,22 @@
 
         <!-- Session Settings -->
         <div v-if="activeTab === 'session'" class="bg-white rounded-2xl shadow-xl overflow-hidden">
-          <div class="p-6 border-b border-gray-200">
+          <!-- <div class="p-6 border-b border-gray-200">
             <h2 class="text-xl font-bold text-gray-800">সেশন কনফিগারেশন</h2>
             <p class="text-sm text-gray-500 mt-1">বর্তমান সেশন এবং অর্থবছর সেট করুন</p>
-          </div>
+          </div> -->
           
-          <div class="p-6 space-y-5">
+          <div class="py-6 px-3 space-y-5">
             <div class="flex items-center justify-start gap-3">
               <label class="block text-sm font-medium text-gray-700 mb-2">সেশন {{auth.currentSession}} </label>
               <label class="block text-sm font-medium text-gray-700 mb-2">বর্তমান মাস {{auth.currentMonth}} </label>
             </div>
             
-            <div class="flex justify-end pt-4">
-              <NuxtLink to="/session" class="px-6 py-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-xl hover:shadow-lg transition-all">
+            <div class="flex justify-start items-start pt-4">
+              <SessionManager />
+	      <!-- <NuxtLink to="/session" class="px-6 py-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-xl hover:shadow-lg transition-all">
                 সেসন দেখুন
-              </NuxtLink>
+              </NuxtLink> -->
             </div>
           </div>
         </div>
