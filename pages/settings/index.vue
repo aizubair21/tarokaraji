@@ -143,7 +143,7 @@
         </div>
 
         <!-- Session Settings -->
-        <div v-if="activeTab === 'session'" class="bg-white rounded-2xl shadow-xl overflow-hidden">
+        <div v-if="activeTab === 'session'" class="bg-white overflow-hidden">
           <!-- <div class="p-6 border-b border-gray-200">
             <h2 class="text-xl font-bold text-gray-800">সেশন কনফিগারেশন</h2>
             <p class="text-sm text-gray-500 mt-1">বর্তমান সেশন এবং অর্থবছর সেট করুন</p>
@@ -155,7 +155,7 @@
               <label class="block text-sm font-medium text-gray-700 mb-2">বর্তমান মাস {{auth.currentMonth}} </label>
             </div>
             
-            <div class="flex justify-start items-start pt-4">
+            <div class="pt-4">
               <SessionManager />
 	      <!-- <NuxtLink to="/session" class="px-6 py-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-xl hover:shadow-lg transition-all">
                 সেসন দেখুন
@@ -308,15 +308,15 @@ const auth = useAuthStore()
 const spreadsheetId = process.env.NUXT_PUBLIC_SPREADSHEET_ID
 
 // Active tab state
-const activeTab = ref('profile')
+const activeTab = ref('session')
 
 // Settings tabs configuration
 const settingsTabs = [
-  { id: 'profile', name: 'প্রোফাইল', icon: 'fas fa-user' },
-  { id: 'password', name: 'পাসওয়ার্ড', icon: 'fas fa-lock' },
+  // { id: 'profile', name: 'প্রোফাইল', icon: 'fas fa-user' },
+  // { id: 'password', name: 'পাসওয়ার্ড', icon: 'fas fa-lock' },
   { id: 'session', name: 'সেশন', icon: 'fas fa-calendar-alt' },
-  { id: 'notifications', name: 'নোটিফিকেশন', icon: 'fas fa-bell' },
-  { id: 'about', name: 'সিস্টেম সম্পর্কে', icon: 'fas fa-info-circle' }
+  // { id: 'notifications', name: 'নোটিফিকেশন', icon: 'fas fa-bell' },
+  // { id: 'about', name: 'সিস্টেম সম্পর্কে', icon: 'fas fa-info-circle' }
 ]
 
 // Add system tab for admin only

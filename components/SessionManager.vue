@@ -13,9 +13,9 @@ const form = reactive({
 
 // Fetch all sessions - Updated path
 const fetchSessions = async () => {
- await useSessionsStore().fetchSessions();
- sessions.value = useSessionsStore().sessions;
- //console.log(sessions.value);
+ //await useSessionsStore().fetchSessions();
+ sessions.value = await $fetch("/api/crud/Sessions");
+ // console.log(sessions.value);
 }
 
 // Create new session - Updated path
@@ -125,10 +125,10 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="space-y-6">
+  <div class="">
     <!-- Header -->
-    <div class="flex justify-between items-center">
-      <h2 class="text-2xl font-bold text-gray-800">সেশন ম্যানেজমেন্ট</h2>
+    <div class="mb-3 w-full flex justify-between items-center">
+      <h2 class="text-xl font-bold text-gray-800">সেশন ম্যানেজমেন্ট</h2>
       <button 
         @click="openCreateModal"
         class="bg-gradient-to-r from-green-500 to-emerald-600 text-white px-6 py-2 rounded-xl hover:shadow-lg transition-all"
