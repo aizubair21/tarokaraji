@@ -34,5 +34,13 @@ export function registerSchemas() {
     timestamp: true
   })
 
+  // settings 
+  CRUDManagerService.registerSchema({
+    name: 'Settings',
+    collumns: ["tabName"],
+    timestamp: true
+  })
+
+
   console.log('✅ All schemas registered')
 }
