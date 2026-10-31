@@ -37,7 +37,9 @@ export function registerSchemas() {
   // settings 
   CRUDManagerService.registerSchema({
     name: 'Settings',
-    collumns: ["tabName"],
+    collumns: [
+        "tabName", "defaultPageLimit", "backupFrequency", "defaultTheme"
+    ],
     timestamp: true
   })
 

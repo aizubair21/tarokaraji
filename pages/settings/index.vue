@@ -250,13 +250,24 @@
               <label class="block text-sm font-medium text-gray-700 mb-2">ডাটা ব্যাকআপ ফ্রিকোয়েন্সি</label>
               <select 
                 v-model="systemSettings.backupFrequency"
-                class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-              >
+                class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent">
                 <option value="daily">দৈনিক</option>
                 <option value="weekly">সাপ্তাহিক</option>
                 <option value="monthly">মাসিক</option>
               </select>
             </div>
+	    
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2"> Active Tab </label>
+              <select
+                v-model="systemSettings.tabName"
+                class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2">
+                <option value="Transactions"> Primary </option>
+                <option value="Api"> Secondary </option>                                                <option value="monthly">মাসিক</option>
+              </select>
+            </div>
+
             
             <div class="flex justify-end pt-4">
               <button @click="saveSystemSettings" class="px-6 py-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-xl hover:shadow-lg transition-all">
@@ -363,7 +374,8 @@ const notificationSettings = reactive({
 const systemSettings = reactive({
   defaultPageLimit: '25',
   defaultTheme: 'light',
-  backupFrequency: 'weekly'
+  backupFrequency: 'weekly',
+  tabName: 'Transactions'
 })
 
 // Profile methods
@@ -456,14 +468,14 @@ const saveNotificationSettings = async () => {
 // System settings method (admin only)
 const saveSystemSettings = async () => {
   try {
-    await $fetch('/api/admin/system-settings', {
+    await $fetch('/api/crud/Settings', {
       method: 'POST',
       body: systemSettings
     })
     alert('সিস্টেম সেটিংস সংরক্ষিত হয়েছে')
   } catch (error) {
     console.error('System settings error:', error)
-    alert('সেটিংস সংরক্ষণ করতে ব্যর্থ হয়েছে')
+    alert(erroe);
   }
 }
 
@@ -471,7 +483,8 @@ const saveSystemSettings = async () => {
 onMounted(async () => {
   try {
     // Load user profile
-    const profile = await $fetch('/api/auth/profile')
+   # const profile = await $fetch('/api/auth/profile')
+    const profile = [];
     if (profile) {
       profileForm.name_bangla = profile.name_bangla || auth.userName
       profileForm.email = profile.email || auth.userEmail
@@ -480,7 +493,8 @@ onMounted(async () => {
     }
     
     // Load notification settings
-    const notifSettings = await $fetch('/api/auth/notifications')
+    const notifSettings = [];
+   # await $fetch('/api/auth/notifications')
     if (notifSettings) {
       notificationSettings.email = notifSettings.email ?? true
       notificationSettings.sms = notifSettings.sms ?? false
