@@ -13,7 +13,7 @@
       <!-- Sidebar Navigation -->
       <div class="lg:col-span-1">
         <div class="bg-white overflow-hidden sticky top-20">
-          <div class="flex gap-3 overflow-x-scroll">
+          <div class="inline-flex gap-3 overflow-x-scroll">
             <button
               v-for="tab in settingsTabs"
               :key="tab.id"
@@ -33,7 +33,7 @@
       <!-- Main Content -->
       <div class="lg:col-span-2">
         <!-- Profile Settings -->
-        <div v-if="activeTab === 'profile'" class="bg-white rounded-2xl shadow-xl overflow-hidden">
+       <!--  <div v-if="activeTab === 'profile'" class="bg-white rounded-2xl shadow-xl overflow-hidden">
           <div class="p-6 border-b border-gray-200">
             <h2 class="text-xl font-bold text-gray-800">প্রোফাইল সেটিংস</h2>
             <p class="text-sm text-gray-500 mt-1">আপনার ব্যক্তিগত তথ্য আপডেট করুন</p>
@@ -92,10 +92,10 @@
               </button>
             </div>
           </form>
-        </div>
+        </div> -->
 
         <!-- Password Settings -->
-        <div v-if="activeTab === 'password'" class="bg-white rounded-2xl shadow-xl overflow-hidden">
+       <!--  <div v-if="activeTab === 'password'" class="bg-white rounded-2xl shadow-xl overflow-hidden">
           <div class="p-6 border-b border-gray-200">
             <h2 class="text-xl font-bold text-gray-800">পাসওয়ার্ড পরিবর্তন</h2>
             <p class="text-sm text-gray-500 mt-1">আপনার অ্যাকাউন্টের পাসওয়ার্ড আপডেট করুন</p>
@@ -140,14 +140,10 @@
               </button>
             </div>
           </form>
-        </div>
+        </div> -->
 
         <!-- Session Settings -->
         <div v-if="activeTab === 'session'" class="bg-white overflow-hidden">
-          <!-- <div class="p-6 border-b border-gray-200">
-            <h2 class="text-xl font-bold text-gray-800">সেশন কনফিগারেশন</h2>
-            <p class="text-sm text-gray-500 mt-1">বর্তমান সেশন এবং অর্থবছর সেট করুন</p>
-          </div> -->
           
           <div class="py-6 px-3 space-y-5">
             <div class="flex items-center justify-start gap-3">
@@ -157,15 +153,12 @@
             
             <div class="pt-4">
               <SessionManager />
-	      <!-- <NuxtLink to="/session" class="px-6 py-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-xl hover:shadow-lg transition-all">
-                সেসন দেখুন
-              </NuxtLink> -->
             </div>
           </div>
         </div>
 
         <!-- Notification Settings -->
-        <div v-if="activeTab === 'notifications'" class="bg-white rounded-2xl shadow-xl overflow-hidden">
+        <!-- <div v-if="activeTab === 'notifications'" class="bg-white rounded-2xl shadow-xl overflow-hidden">
           <div class="p-6 border-b border-gray-200">
             <h2 class="text-xl font-bold text-gray-800">নোটিফিকেশন সেটিংস</h2>
             <p class="text-sm text-gray-500 mt-1">আপনি কোন নোটিফিকেশন পেতে চান</p>
@@ -211,7 +204,7 @@
               </button>
             </div>
           </div>
-        </div>
+        </div> -->
 
         <!-- System Settings (Admin Only) -->
         <div v-if="activeTab === 'system' && auth.isAdmin" class="bg-white rounded-2xl shadow-xl overflow-hidden">
@@ -264,7 +257,7 @@
                 v-model="systemSettings.tabName"
                 class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2">
                 <option value="Transactions"> Primary </option>
-                <option value="Api"> Secondary </option>                                                <option value="monthly">মাসিক</option>
+                <option value="Api"> Secondary </option>
               </select>
             </div>
 
@@ -475,16 +468,13 @@ const saveSystemSettings = async () => {
     alert('সিস্টেম সেটিংস সংরক্ষিত হয়েছে')
   } catch (error) {
     console.error('System settings error:', error)
-    alert(erroe);
   }
 }
 
 // Load saved settings on mount
 onMounted(async () => {
   try {
-    // Load user profile
-   # const profile = await $fetch('/api/auth/profile')
-    const profile = [];
+    const profile = await $fetch('/api/auth/profile')
     if (profile) {
       profileForm.name_bangla = profile.name_bangla || auth.userName
       profileForm.email = profile.email || auth.userEmail
@@ -492,16 +482,14 @@ onMounted(async () => {
       profileForm.address = profile.address || ''
     }
     
-    // Load notification settings
-    const notifSettings = [];
-   # await $fetch('/api/auth/notifications')
+    const notifSettings = await $fetch('/api/auth/notifications')
     if (notifSettings) {
       notificationSettings.email = notifSettings.email ?? true
       notificationSettings.sms = notifSettings.sms ?? false
       notificationSettings.browser = notifSettings.browser ?? true
     }
   } catch (error) {
-    console.error('Error loading settings:', error)
+    alert('Error loading settings:', error)
   }
 })
 </script>
